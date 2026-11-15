@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: probeapp
-          image: registry.access.redhat.com/ubi9/nodejs-22-minimal:latest
+          image: registry.access.redhat.com/ubi9/nodejs-20-minimal:latest
           env:
             - {name: START_DELAY, value: "25"}
           command: ["node", "-e"]

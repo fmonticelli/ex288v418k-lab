@@ -11,7 +11,7 @@ oc project ex288-v3-t3 ; GIT=http://GIT-INTERNO/ex288 ; NEXUS=http://NEXUS-INTER
 ## E1
 
 ```bash
-oc new-app --name s2i1 --source-secret git-creds --image-stream openshift/nodejs:22-ubi9 --code "$GIT/webapp-s2i.git"
+oc new-app --name s2i1 --source-secret git-creds --image-stream openshift/nodejs:20-ubi9 --code "$GIT/webapp-s2i.git"
 oc logs -f bc/s2i1                 # procure: ---> EX288 custom assemble
 oc expose service s2i1
 curl -s "http://$(oc get route s2i1 -o jsonpath='{.spec.host}')/"             # "message":"from-s2i-environment"
@@ -21,7 +21,7 @@ curl -s "http://$(oc get route s2i1 -o jsonpath='{.spec.host}')/build-info"   # 
 ## E2 — mirror do Nexus (variável de build)
 
 ```bash
-oc new-app --name s2i-nexus --source-secret git-creds --image-stream openshift/nodejs:22-ubi9 \
+oc new-app --name s2i-nexus --source-secret git-creds --image-stream openshift/nodejs:20-ubi9 \
   --build-env npm_config_registry="$NEXUS/repository/npm-public/" --code "$GIT/webapp-s2i.git"
 oc logs -f bc/s2i-nexus
 oc expose service s2i-nexus

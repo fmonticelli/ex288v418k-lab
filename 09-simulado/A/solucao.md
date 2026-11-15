@@ -33,7 +33,7 @@ git ls-remote "$GIT/webapp.git"               # digite usuário e senha uma vez;
 
 **T1** (`-n ex288-v3-sa-t1`)
 ```bash
-oc new-app --name portal --source-secret git-creds -l tier=web -e APP_MESSAGE=sim-a --image-stream openshift/nodejs:22-ubi9 --code "$GIT/webapp.git#dev"
+oc new-app --name portal --source-secret git-creds -l tier=web -e APP_MESSAGE=sim-a --image-stream openshift/nodejs:20-ubi9 --code "$GIT/webapp.git#dev"
 oc expose service portal ; oc create route edge portal-tls --service=portal --insecure-policy=Redirect
 ```
 **T2**
@@ -43,7 +43,7 @@ oc new-app --image-stream shop:2.0 --name shop ; oc expose service shop
 ```
 **T3**
 ```bash
-oc new-app --name catalog --source-secret git-creds --image-stream openshift/nodejs:22-ubi9 --build-env npm_config_registry="$NEXUS/repository/npm-public/" -e APP_MESSAGE=catalog-a --code "$GIT/webapp-s2i.git"
+oc new-app --name catalog --source-secret git-creds --image-stream openshift/nodejs:20-ubi9 --build-env npm_config_registry="$NEXUS/repository/npm-public/" -e APP_MESSAGE=catalog-a --code "$GIT/webapp-s2i.git"
 oc expose service catalog
 ```
 **T4**

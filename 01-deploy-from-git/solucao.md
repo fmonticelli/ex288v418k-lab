@@ -21,7 +21,7 @@ git ls-remote "$GIT/webapp.git"                          # digite usuario e senh
 oc create secret generic git-creds --type=kubernetes.io/basic-auth \
   --from-literal=username="$GIT_USER" --from-literal=password="$GIT_PASS"
 oc new-app --name web1 --source-secret git-creds \
-  --image-stream openshift/nodejs:22-ubi9 --code "$GIT/webapp.git"
+  --image-stream openshift/nodejs:20-ubi9 --code "$GIT/webapp.git"
 oc logs -f bc/web1
 oc expose service web1
 curl -s "http://$(oc get route web1 -o jsonpath='{.spec.host}')/"       # {"app":"webapp","branch":"main",...}
@@ -45,7 +45,7 @@ spec:
   strategy:
     type: Source
     sourceStrategy:
-      from: {kind: ImageStreamTag, namespace: openshift, name: "nodejs:22-ubi9"}
+      from: {kind: ImageStreamTag, namespace: openshift, name: "nodejs:20-ubi9"}
   output:
     to: {kind: ImageStreamTag, name: "web1:latest"}
   triggers:
@@ -60,7 +60,7 @@ oc expose service web1
 
 ```bash
 oc new-app --name web-dev --source-secret git-creds -l env=dev -e APP_MESSAGE=from-dev \
-  --image-stream openshift/nodejs:22-ubi9 --code "$GIT/webapp.git#dev"
+  --image-stream openshift/nodejs:20-ubi9 --code "$GIT/webapp.git#dev"
 oc expose service web-dev
 curl -s "http://$(oc get route web-dev -o jsonpath='{.spec.host}')/"    # "branch":"dev","message":"from-dev"
 ```
@@ -70,7 +70,7 @@ curl -s "http://$(oc get route web-dev -o jsonpath='{.spec.host}')/"    # "branc
 ## E3 — monorepo (dois componentes) e route edge
 
 ```bash
-oc new-app --name api  --source-secret git-creds --context-dir api  --image-stream openshift/nodejs:22-ubi9 --code "$GIT/monorepo.git"
+oc new-app --name api  --source-secret git-creds --context-dir api  --image-stream openshift/nodejs:20-ubi9 --code "$GIT/monorepo.git"
 oc new-app --name site --source-secret git-creds --context-dir site "openshift/httpd:2.4-ubi9~$GIT/monorepo.git"
 oc expose service api
 oc expose service site

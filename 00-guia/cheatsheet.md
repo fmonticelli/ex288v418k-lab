@@ -16,7 +16,7 @@ oc explain RECURSO.campo --recursive ; oc COMANDO -h
 ```bash
 git config --global credential.helper 'cache --timeout=3600' ; git ls-remote URL     # o oc new-app clona no CLIENTE (repo privado ABORTA sem credencial)
 oc create secret generic git-creds --type=kubernetes.io/basic-auth --from-literal=username=U --from-literal=password=P
-oc new-app --name N --source-secret git-creds --image-stream openshift/nodejs:22-ubi9 --code URL[#branch] [--context-dir D] [-l k=v] [-e K=V]
+oc new-app --name N --source-secret git-creds --image-stream openshift/nodejs:20-ubi9 --code URL[#branch] [--context-dir D] [-l k=v] [-e K=V]
 oc new-app --name S --source-secret git-creds --context-dir site "openshift/httpd:2.4-ubi9~URL"   # sem linguagem detectavel: builder~URL
 oc set build-secret --source bc/N git-creds ; oc start-build N --follow
 oc expose service N ; oc create route edge N-tls --service=N --insecure-policy=Redirect
@@ -35,7 +35,7 @@ HOST=$(oc registry info --public) ; podman login -u developer -p "$(oc whoami -t
 ## T3 S2I
 ```bash
 oc get is -n openshift | grep -E 'nodejs|httpd|python|java'
-oc new-app --name N --image-stream openshift/nodejs:22-ubi9 --code URL --build-env npm_config_registry=http://NEXUS/repository/npm-public/
+oc new-app --name N --image-stream openshift/nodejs:20-ubi9 --code URL --build-env npm_config_registry=http://NEXUS/repository/npm-public/
 oc set env bc/N npm_config_registry=URL ; oc start-build N --follow
 # repo: .s2i/environment, .s2i/bin/assemble (chama /usr/libexec/s2i/assemble), .s2i/bin/run (git update-index --chmod=+x)
 ```

@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: cfgapp
-          image: registry.access.redhat.com/ubi9/nodejs-22-minimal:latest
+          image: registry.access.redhat.com/ubi9/nodejs-20-minimal:latest
           command: ["node", "-e"]
           args:
             - |

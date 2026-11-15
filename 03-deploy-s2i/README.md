@@ -13,12 +13,12 @@
 
 ```bash
 oc get is -n openshift | grep -E 'nodejs|httpd|python|java|php'      # builders disponíveis e tags
-oc new-app --name s2i1 --source-secret git-creds --image-stream openshift/nodejs:22-ubi9 \
+oc new-app --name s2i1 --source-secret git-creds --image-stream openshift/nodejs:20-ubi9 \
   --code http://GIT/ex288/webapp-s2i.git
 oc logs -f bc/s2i1 && oc expose service s2i1
 ```
 
-Forma curta equivalente: `oc new-app nodejs:22-ubi9~URL --source-secret git-creds`. Se você **não** informar o builder, o `oc new-app` escolhe pela linguagem detectada (`package.json` → Node.js); sempre confira com `oc get bc -o jsonpath='{.items[*].spec.strategy.sourceStrategy.from.name}'`.
+Forma curta equivalente: `oc new-app nodejs:20-ubi9~URL --source-secret git-creds`. Se você **não** informar o builder, o `oc new-app` escolhe pela linguagem detectada (`package.json` → Node.js); sempre confira com `oc get bc -o jsonpath='{.items[*].spec.strategy.sourceStrategy.from.name}'`.
 
 ## Variações prováveis
 
@@ -30,8 +30,8 @@ Forma curta equivalente: `oc new-app nodejs:22-ubi9~URL --source-secret git-cred
 | Corrigir variável de build errada | `oc set env bc/x npm_config_registry=URL` + `oc start-build x --follow` | build `Complete` |
 | Outro builder / outra tag | `--image-stream openshift/nodejs:20-ubi9` ou `oc patch bc` em `strategy.sourceStrategy.from` | `oc describe bc x` |
 | Build incremental | `oc patch bc/x -p '{"spec":{"strategy":{"sourceStrategy":{"incremental":true}}}}'` | 2º build restaura artefatos (depende do builder: `HIPÓTESE`) |
-| Somente o BuildConfig | `oc new-build nodejs:22-ubi9~URL --name x` + `oc start-build` | `oc get bc,is` |
-| Ler os scripts do builder | `oc get istag nodejs:22-ubi9 -n openshift -o jsonpath='{.image.dockerImageMetadata.Config.Labels}'` → `io.openshift.s2i.scripts-url` | — |
+| Somente o BuildConfig | `oc new-build nodejs:20-ubi9~URL --name x` + `oc start-build` | `oc get bc,is` |
+| Ler os scripts do builder | `oc get istag nodejs:20-ubi9 -n openshift -o jsonpath='{.image.dockerImageMetadata.Config.Labels}'` → `io.openshift.s2i.scripts-url` | — |
 
 ## Armadilhas e diagnóstico
 
@@ -49,7 +49,7 @@ Forma curta equivalente: `oc new-app nodejs:22-ubi9~URL --source-secret git-cred
 - Builds using BuildConfig → *Source-to-image build* (`sourceStrategy`, `env`, `incremental`, `scripts`): <https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html-single/builds_using_buildconfig/index#builds-strategy-s2i-build_build-strategies-docker>
 - Images → *Create images from source code with source-to-image* (`assemble`, `run`, `save-artifacts`, `.s2i/bin`): <https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html-single/images/index#images-create-s2i_create-images>
 - Support → *Troubleshooting the Source-to-Image process*: <https://docs.redhat.com/en/documentation/openshift_container_platform/4.22/html-single/support/index#troubleshooting-s2i>
-- Variáveis do builder Node.js: README da imagem (`oc get istag nodejs:22-ubi9 -n openshift -o yaml` → `annotations`/labels com a URL do README).
+- Variáveis do builder Node.js: README da imagem (`oc get istag nodejs:20-ubi9 -n openshift -o yaml` → `annotations`/labels com a URL do README).
 
 ## Variante com Git interno e Nexus
 

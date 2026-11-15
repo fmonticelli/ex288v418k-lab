@@ -19,7 +19,7 @@ git ls-remote http://GIT-INTERNO/ex288/webapp.git                # digite usuari
 oc create secret generic git-creds --type=kubernetes.io/basic-auth \
   --from-literal=username=USUARIO --from-literal=password=SENHA
 oc new-app --name web1 --source-secret git-creds \
-  --image-stream openshift/nodejs:22-ubi9 --code http://GIT-INTERNO/ex288/webapp.git
+  --image-stream openshift/nodejs:20-ubi9 --code http://GIT-INTERNO/ex288/webapp.git
 oc logs -f bc/web1                                       # acompanhe o build (não bloqueie o resto da prova)
 oc expose service web1 && oc get route web1
 ```
@@ -30,7 +30,7 @@ oc expose service web1 && oc get route web1
 
 | Variação                               | Comando                                                                                                        | Verificar                                                                                            |
 | -------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Branch/tag/commit                      | `--code URL#dev` (ou `oc new-app nodejs:22-ubi9~URL#dev`)                                                      | `oc get bc web-dev -o jsonpath='{.spec.source.git.ref}'`                                             |
+| Branch/tag/commit                      | `--code URL#dev` (ou `oc new-app nodejs:20-ubi9~URL#dev`)                                                      | `oc get bc web-dev -o jsonpath='{.spec.source.git.ref}'`                                             |
 | Subdiretório do repositório            | `--context-dir api`                                                                                            | `oc get bc api -o jsonpath='{.spec.source.contextDir}'`                                              |
 | Nome e rótulos                         | `--name web1 -l env=dev`                                                                                       | `oc get all -l env=dev`                                                                              |
 | Estratégia explícita                   | `--strategy source` ou `docker` (vê [T2](../02-deploy-from-dockerfile/README.md))                              | `oc get bc -o jsonpath='{.items[0].spec.strategy.type}'`                                             |

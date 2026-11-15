@@ -79,7 +79,7 @@ oc create deployment x --image=IMG --dry-run=client -o yaml
 oc create configmap c --from-literal=A=1 --dry-run=client -o yaml
 oc create secret generic s --from-literal=k=v --dry-run=client -o yaml
 oc create route edge r --service=svc --dry-run=client -o yaml
-oc new-app --name x --image-stream openshift/nodejs:22-ubi9 --code URL -o yaml
+oc new-app --name x --image-stream openshift/nodejs:20-ubi9 --code URL -o yaml
 oc get deploy x -o yaml                       # limpe status, uid, resourceVersion, creationTimestamp
 oc explain deployment.spec.template.spec.containers.startupProbe
 ```

@@ -52,7 +52,7 @@ objects:
         spec:
           containers:
             - name: app
-              image: registry.access.redhat.com/ubi9/nodejs-22-minimal:latest
+              image: registry.access.redhat.com/ubi9/nodejs-20-minimal:latest
               env: [{name: MESSAGE, value: "${MESSAGE}"}]
               command: ["node", "-e"]
               args: ["require('http').createServer((q,s)=>s.end(process.env.MESSAGE+'\\n')).listen(8080)"]

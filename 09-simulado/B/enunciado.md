@@ -34,7 +34,7 @@ A aplicação **`reports`** (monorepo, diretório `api`) foi criada e o build es
 3. `slowbad` reinicia continuamente por causa da liveness: **mantenha a liveness** e acrescente o que falta (tolerância de partida ≥ 40 s); `Ready`, sem reinícios.
 
 ## Task 6 — Templates (`ex288-v3-sb-t6`)
-1. Crie o template **`stack`** com Secret, Deployment, Service e Route; parâmetros **`NAME`** (obrigatório), **`MESSAGE`** (valor padrão) e **`TOKEN`** (gerado, 12 caracteres alfanuméricos), com o token na chave **`token`** do Secret `${NAME}-token`. A aplicação responde `${MESSAGE}` (imagem `registry.access.redhat.com/ubi9/nodejs-22-minimal:latest`).
+1. Crie o template **`stack`** com Secret, Deployment, Service e Route; parâmetros **`NAME`** (obrigatório), **`MESSAGE`** (valor padrão) e **`TOKEN`** (gerado, 12 caracteres alfanuméricos), com o token na chave **`token`** do Secret `${NAME}-token`. A aplicação responde `${MESSAGE}` (imagem `registry.access.redhat.com/ubi9/nodejs-20-minimal:latest`).
 2. Instancie **`stack-a`** e **`stack-b`** (com `MESSAGE` diferente).
 3. Os tokens têm 12 caracteres e as Routes respondem.
 

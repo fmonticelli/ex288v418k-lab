@@ -79,9 +79,9 @@ Correção (trecho de `spec.tasks[1]`): `runAfter: ["write"]`, `taskSpec.workspa
 ## E4 — gatilhos nativos
 
 ```bash
-oc new-app --name native --source-secret git-creds --image-stream openshift/nodejs:22-ubi9 --code http://GIT-INTERNO/ex288/webapp.git
+oc new-app --name native --source-secret git-creds --image-stream openshift/nodejs:20-ubi9 --code http://GIT-INTERNO/ex288/webapp.git
 oc set triggers bc/native --from-webhook                  # Generic
-oc set triggers bc/native --from-image=nodejs:22-ubi9     # ImageChange (confira com oc set triggers bc/native)
+oc set triggers bc/native --from-image=nodejs:20-ubi9     # ImageChange (confira com oc set triggers bc/native)
 oc set build-hook bc/native --post-commit --script='npm test'
 NS=$(oc project -q)
 oc policy add-role-to-group system:webhook system:unauthenticated -n "$NS"     # desde o 4.16

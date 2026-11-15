@@ -33,7 +33,7 @@ git ls-remote "$GIT/webapp.git"               # digite usuário e senha uma vez;
 
 **T1** (`-n ex288-v3-sb-t1`)
 ```bash
-oc new-app --name gateway --source-secret git-creds --context-dir api -l tier=edge -e APP_MESSAGE=sim-b --image-stream openshift/nodejs:22-ubi9 --code "$GIT/monorepo.git"
+oc new-app --name gateway --source-secret git-creds --context-dir api -l tier=edge -e APP_MESSAGE=sim-b --image-stream openshift/nodejs:20-ubi9 --code "$GIT/monorepo.git"
 oc new-app --name static  --source-secret git-creds --context-dir site "openshift/httpd:2.4-ubi9~$GIT/monorepo.git"      # so index.html: precisa de builder~URL
 oc expose service gateway ; oc expose service static ; oc create route edge static-tls --service=static --insecure-policy=Redirect
 ```
@@ -45,7 +45,7 @@ oc patch bc/legacy -p '{"spec":{"strategy":{"dockerStrategy":{"dockerfilePath":"
 oc expose service legacy
 git clone "$GIT/webapp-docker.git" wd
 cat > wd/Dockerfile.root <<'EOF'
-FROM registry.access.redhat.com/ubi9/nodejs-22-minimal:latest
+FROM registry.access.redhat.com/ubi9/nodejs-20-minimal:latest
 ARG NPM_REGISTRY=https://registry.npmjs.org/
 USER 0
 WORKDIR /app
@@ -121,7 +121,7 @@ objects:
         spec:
           containers:
             - name: app
-              image: registry.access.redhat.com/ubi9/nodejs-22-minimal:latest
+              image: registry.access.redhat.com/ubi9/nodejs-20-minimal:latest
               env:
                 - {name: MESSAGE, value: "${MESSAGE}"}
                 - name: TOKEN
@@ -187,9 +187,9 @@ spec:
   taskRunTemplate: {serviceAccountName: pipeline}
 EOF
 # 3) native: BuildConfig S2I com Generic + ImageChange + post-commit hook
-oc new-app --name native --source-secret git-creds --image-stream openshift/nodejs:22-ubi9 --code "$GIT/webapp.git"
+oc new-app --name native --source-secret git-creds --image-stream openshift/nodejs:20-ubi9 --code "$GIT/webapp.git"
 oc set triggers bc/native --from-webhook
-oc set triggers bc/native --from-image=nodejs:22-ubi9
+oc set triggers bc/native --from-image=nodejs:20-ubi9
 oc set build-hook bc/native --post-commit --script='npm test'
 oc get pipelinerun                                                                  # broken-ci-run-* e sim-ci-run-*: Succeeded
 oc get bc native -o jsonpath='{.spec.triggers[*].type}{"\n"}{.spec.postCommit}{"\n"}'     # ... Generic ... ImageChange ...  {"script":"npm test"}

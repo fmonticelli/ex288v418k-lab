@@ -45,7 +45,7 @@ else
   if want 3; then
     # T3-B: app com registry npm invalido (corrigir)
     git_resolve_env
-    oc new-app -n "${P}3" --name reports --source-secret git-creds --image-stream openshift/nodejs:22-ubi9 --context-dir api \
+    oc new-app -n "${P}3" --name reports --source-secret git-creds --image-stream openshift/nodejs:20-ubi9 --context-dir api \
       --build-env npm_config_registry=http://127.0.0.1:9/ --code "$(git_url monorepo)" >/dev/null 2>&1 || echo "AVISO: nao consegui criar 'reports' (T3-B) agora; crie conforme o enunciado."
   fi
   # T8-B: o 'broken-ci' NAO e pre-aplicado: o webhook do Tekton rejeita o arquivo (runAfter para task inexistente; VERIFICADO),

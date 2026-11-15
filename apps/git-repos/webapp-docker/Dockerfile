@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/nodejs-22-minimal:latest
+FROM registry.access.redhat.com/ubi9/nodejs-20-minimal:latest
 ARG NPM_REGISTRY=https://registry.npmjs.org/
 WORKDIR /opt/app-root/src
 COPY --chown=1001:0 package.json server.js ./
