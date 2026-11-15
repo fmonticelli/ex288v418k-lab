@@ -6,7 +6,7 @@ Preparação: `bash scripts/preparar-01.sh` · Projeto: `ex288-v3-t1` · Git: `b
 Repositórios no Git interno (todos **privados**, usuário/senha do script): `webapp` (branches `main` e `dev`) e `monorepo` (pastas `api/` e `site/`).
 
 **E1 — Aplicação a partir do repositório privado (básico).**
-Faça o deploy do repositório `webapp` (branch `main`) como aplicação **`web1`**, usando o builder Node.js 22 (UBI 9) do namespace `openshift`. O BuildConfig deve usar um Secret chamado **`git-creds`** como source secret. A aplicação deve estar com 1 réplica pronta e a Route **`web1`** deve devolver JSON com `"branch":"main"`.
+Faça o deploy do repositório `webapp` (branch `main`) como aplicação **`web1`**, usando o builder Node.js 20 (UBI 9) do namespace `openshift`. O BuildConfig deve usar um Secret chamado **`git-creds`** como source secret. A aplicação deve estar com 1 réplica pronta e a Route **`web1`** deve devolver JSON com `"branch":"main"`.
 
 **E2 — Branch, rótulo e variável de runtime.**
 Faça o deploy do branch **`dev`** do mesmo repositório como **`web-dev`**. Todos os recursos criados devem ter o rótulo **`env=dev`**. A aplicação deve receber **`APP_MESSAGE=from-dev`** como variável de ambiente (sem alterar o código). A Route **`web-dev`** deve devolver `"branch":"dev"` e `"message":"from-dev"`.
