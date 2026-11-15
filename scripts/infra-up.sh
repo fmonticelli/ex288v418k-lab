@@ -27,11 +27,11 @@ fi
 if [ "${SKIP_GIT:-0}" != 1 ]; then
 echo "== 2/5 credenciais do Gitea e repositorios privados"
 if ! exists "$N" secret gitea-admin; then
-  GPW="${EX288_LAB_PASSWORD:-Ex288Lab2026!}"
+  GPW="${EX288_LAB_PASSWORD:-ex288}"
   oc create secret generic gitea-admin -n "$N" --from-literal=username=ex288 --from-literal=password="$GPW" >/dev/null
   oc label secret gitea-admin -n "$N" ex288-lab=v3 >/dev/null
 fi
-GU="$(git_user)"; GPW="${EX288_LAB_PASSWORD:-Ex288Lab2026!}"; GH="$(gitea_host)"
+GU="$(git_user)"; GPW="${EX288_LAB_PASSWORD:-ex288}"; GH="$(gitea_host)"
 # Reconcilia usuarios ja criados sem apagar repositorios.
 oc exec -n "$N" deploy/gitea -- gitea admin user change-password --username "$GU" --password "$GPW" >/dev/null 2>&1 || true
 oc create secret generic gitea-admin -n "$N" --from-literal=username="$GU" --from-literal=password="$GPW" --dry-run=client -o yaml | oc apply -f - >/dev/null
@@ -81,14 +81,14 @@ i=0; until [ "$(nx /service/rest/v1/status -o /dev/null -w '%{http_code}')" = 20
 done
 if exists "$N" secret nexus-admin; then
   NPW="$(nexus_pass)"
-  TARGET_PW="${EX288_LAB_PASSWORD:-Ex288Lab2026!}"
+  TARGET_PW="${EX288_LAB_PASSWORD:-ex288}"
   if [ "$NPW" != "$TARGET_PW" ]; then
     [ "$(nx /service/rest/v1/security/users/admin/change-password -u "admin:$NPW" -X PUT -H "Content-Type: text/plain" -d "$TARGET_PW" -o /dev/null -w "%{http_code}")" = 204 ] || die "nao consegui atualizar a senha existente do Nexus"
     NPW="$TARGET_PW"
     oc create secret generic nexus-admin -n "$N" --from-literal=username=admin --from-literal=password="$NPW" --dry-run=client -o yaml | oc apply -f - >/dev/null
   fi
 else
-  NPW="${EX288_LAB_PASSWORD:-Ex288Lab2026!}"
+  NPW="${EX288_LAB_PASSWORD:-ex288}"
   [ "$(nx /service/rest/v1/security/users/admin/change-password -u admin:admin123 -X PUT -H 'Content-Type: text/plain' -d "$NPW" -o /dev/null -w '%{http_code}')" = 204 ] \
     || die "nao consegui trocar a senha inicial do admin do Nexus (ja trocada em outro run? apague o Secret e o pod)"
   oc create secret generic nexus-admin -n "$N" --from-literal=username=admin --from-literal=password="$NPW" >/dev/null
