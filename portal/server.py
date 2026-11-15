@@ -4,6 +4,7 @@ import json
 import os
 import re
 import subprocess
+import time
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -25,6 +26,43 @@ TASKS = {
     "7": ("Helm", "07-helm/exercicios.md", "07"),
     "8": ("CI/CD", "08-cicd-pipelines/exercicios.md", "08"),
 }
+SIM_NS = {
+    "A": ("crimson", "quartz", "ember", "harbor", "cobalt", "willow", "falcon", "tundra"),
+    "B": ("onyx", "cedar", "glacier", "copper", "violet", "lantern", "summit", "orchard", "copper-shared"),
+}
+def target_names(data):
+    if data.get("mode") == "task" and str(data.get("task")) in TASKS:
+        return [f"ex288-v3-t{data['task']}"]
+    if data.get("mode") == "exam" and data.get("variant") in SIM_NS:
+        return list(SIM_NS[data["variant"]])
+    return None
+
+def namespace_status(names):
+    # Uma unica consulta ao cluster. O botao de limpeza so fica ativo para
+    # namespaces do laboratorio (label ex288-lab=v3).
+    p = subprocess.run(["oc", "get", "namespaces", "-o", "json"],
+                       capture_output=True, text=True, timeout=20, env=os.environ.copy())
+    if p.returncode:
+        raise RuntimeError(p.stderr.strip() or "Falha ao consultar namespaces")
+    items = {item["metadata"]["name"]: item for item in json.loads(p.stdout)["items"]}
+    found = []
+    for name in names:
+        item = items.get(name)
+        if item:
+            found.append({"name": name,
+                          "phase": item.get("status", {}).get("phase", "Unknown"),
+                          "managed": item.get("metadata", {}).get("labels", {}).get("ex288-lab") == "v3"})
+    return found
+
+def await_cleanup(names, timeout=120):
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        remaining = namespace_status(names)
+        if not remaining:
+            return True, []
+        time.sleep(3)
+    return False, namespace_status(names)
+
 def read(path):
     return (ROOT / path).read_text(encoding="utf-8")
 def sections(md):
@@ -70,6 +108,16 @@ class Handler(BaseHTTPRequestHandler):
             return self.send((PORTAL / "index.html").read_bytes(), content_type="text/html; charset=utf-8")
         if url.path == "/app.js":
             return self.send((PORTAL / "app.js").read_bytes(), content_type="application/javascript; charset=utf-8")
+        if url.path == "/api/status":
+            query = parse_qs(url.query)
+            names = target_names({k: v[0] for k, v in query.items()})
+            if names is None:
+                return self.send({"error": "Selecao invalida"}, 400)
+            try:
+                found = namespace_status(names)
+                return self.send({"namespaces": found, "can_cleanup": any(x["managed"] for x in found)})
+            except (RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
+                return self.send({"error": str(exc)}, 503)
         if url.path == "/api/tasks":
             tasks = []
             for k, (title, path, _) in TASKS.items():
@@ -115,7 +163,20 @@ class Handler(BaseHTTPRequestHandler):
         if not LOCK.acquire(blocking=False):
             return self.send({"error": "Outra operacao esta em andamento"}, 409)
         try:
-            return self.send(run_script(script, args))
+            result = run_script(script, args)
+            if action == "cleanup" and result["ok"]:
+                try:
+                    completed, remaining = await_cleanup(target_names(data))
+                    if completed:
+                        result["output"] += "\\nExclusao confirmada: namespaces ausentes do cluster."
+                    else:
+                        result["ok"] = False
+                        result["code"] = 124
+                        result["output"] += "\\nTempo limite aguardando exclusao: " + ", ".join(x["name"] for x in remaining)
+                except (RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
+                    result["ok"] = False
+                    result["output"] += "\\nNao foi possivel confirmar a exclusao: " + str(exc)
+            return self.send(result)
         finally:
             LOCK.release()
 
