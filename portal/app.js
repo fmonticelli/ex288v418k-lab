@@ -90,13 +90,19 @@ function operationStatus(type,title,message,details=false){
 }
 $('operation-details').onclick=()=>{$('results').hidden=false;$('results').scrollIntoView({behavior:'smooth',block:'start'});};
 async function action(kind){
-  const buttons=[$('prepare'),$('validate')];
+  const buttons=[$('prepare'),$('validate'),$('cleanup')];
   const isPrepare=kind==='prepare';
+  const isCleanup=kind==='cleanup';
   const target=state.mode==='exam'?'simulado '+state.variant:'tarefa '+currentParts()[Number(state.selected)].title;
+  if(isCleanup){
+    const scope=state.mode==='exam'?'TODOS os namespaces do Simulado '+state.variant+' (incluindo o compartilhado, se houver)':'o namespace da tarefa selecionada';
+    if(!confirm('Excluir '+scope+'? Esta operação remove os recursos do OpenShift e não pode ser desfeita. A infraestrutura Gitea/Nexus e a nota registrada serão preservadas.'))return;
+  }
   buttons.forEach(b=>b.disabled=true);
   $('prepare').textContent=isPrepare?'Preparando...':'Preparar ambiente';
-  $('validate').textContent=!isPrepare?'Validando...':state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
-  operationStatus('running',isPrepare?'Preparando ambiente...':'Executando validação...',
+  $('validate').textContent=kind==='validate'?'Validando...':state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
+  $('cleanup').textContent=isCleanup?'Limpando...':'Limpar ambiente';
+  operationStatus('running',isCleanup?'Limpando ambiente...':isPrepare?'Preparando ambiente...':'Executando validação...',
     'Executando scripts para '+target+'. Aguarde a resposta do servidor; esta operação pode levar alguns minutos.');
   $('results').hidden=false;
   $('status').textContent='Operação em andamento...';
@@ -110,10 +116,10 @@ async function action(kind){
     $('status').textContent=ok?'Concluído (exit 0)':'Falhou (exit '+(d.code??r.status)+')';
     $('result').textContent=d.output??d.error??'Sem saída';
     if(ok){
-      operationStatus('success',isPrepare?'Preparação concluída':'Validação concluída',
-        (isPrepare?'Script de preparação finalizado sem erros para ':'Script de validação finalizado para ')+target+'. Confira a saída para detalhes.',true);
+      operationStatus('success',isCleanup?'Limpeza concluída':isPrepare?'Preparação concluída':'Validação concluída',
+        (isCleanup?'Script de limpeza finalizado para ':isPrepare?'Script de preparação finalizado sem erros para ':'Script de validação finalizado para ')+target+'. Confira a saída para detalhes.',true);
     }else{
-      operationStatus('failure',isPrepare?'Falha ao preparar ambiente':'Falha na validação',
+      operationStatus('failure',isCleanup?'Falha ao limpar ambiente':isPrepare?'Falha ao preparar ambiente':'Falha na validação',
         'O script retornou erro para '+target+'. Abra os detalhes para identificar a causa.',true);
     }
     if(kind==='validate'&&state.mode==='exam'&&recordGrade(d.output??''))setPage('grade');
@@ -124,13 +130,14 @@ async function action(kind){
   }finally{
     buttons.forEach(b=>b.disabled=false);
     $('prepare').textContent='Preparar ambiente';
+    $('cleanup').textContent='Limpar ambiente';
     $('validate').textContent=state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
   }
 }
 document.querySelectorAll('#sections button').forEach(b=>b.onclick=()=>setPage(b.dataset.page));
 $('mode').onchange=e=>{state.mode=e.target.value;state.selected='0';draw();};
 $('variant').onchange=async e=>{state.variant=e.target.value;state.selected='0';await load();};
-$('prepare').onclick=()=>action('prepare');$('validate').onclick=()=>action('validate');
+$('prepare').onclick=()=>action('prepare');$('validate').onclick=()=>action('validate');$('cleanup').onclick=()=>action('cleanup');
 $('reset').onclick=()=>{if(confirm('Reiniciar cronômetro?')){state.started=Date.now();save();}};
 setInterval(()=>{const n=Math.floor((Date.now()-state.started)/1000);$('clock').textContent=[Math.floor(n/3600),Math.floor(n/60)%60,n%60].map(v=>String(v).padStart(2,'0')).join(':');},1000);
 load().catch(e=>{$('title').textContent='Erro ao carregar enunciados';$('question').textContent=String(e);});
