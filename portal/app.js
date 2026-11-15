@@ -40,7 +40,7 @@ function draw(){
   $('mode').value=state.mode;$('variant').value=state.variant;$('variant').hidden=state.mode!=='exam';
   $('subtitle').textContent=state.mode==='exam'?'Variante '+state.variant+' · correção única':'Tarefas T0–T8 · validação individual';
   $('nav').replaceChildren();
-  parts.forEach((p,i)=>{const b=document.createElement('button');b.textContent=p.title;b.style.borderColor=i===idx?'#70b9ff':'';b.onclick=()=>{state.selected=String(i);draw();};$('nav').append(b);});
+  parts.forEach((p,i)=>{const b=document.createElement('button');b.textContent=p.title;b.classList.toggle('active',i===idx);b.onclick=()=>{state.selected=String(i);draw();};$('nav').append(b);});
   const part=parts[idx];$('title').textContent=part.title;
   $('question').innerHTML=markdown(part.body);
   const items=checkboxItems(part);$('checks').replaceChildren();
