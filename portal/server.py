@@ -163,32 +163,7 @@ class Handler(BaseHTTPRequestHandler):
         if not LOCK.acquire(blocking=False):
             return self.send({"error": "Outra operacao esta em andamento"}, 409)
         try:
-            if action == "cleanup":
-                try:
-                    found = namespace_status(target_names(data))
-                except (RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
-                    return self.send({"error": "Nao foi possivel verificar namespaces: " + str(exc)}, 503)
-                unlabeled = [x["name"] for x in found if not x["managed"]]
-                if unlabeled:
-                    # Namespace sem label: somente T0-T8, mediante confirmacao
-                    # explicita com o nome exato. Simulados sem label nao sao adotados.
-                    if mode != "task" or len(unlabeled) != 1 or data.get("adopt_namespace") != unlabeled[0]:
-                        return self.send({"error": "Namespace sem label do laboratorio: " + ", ".join(unlabeled) +
-                                          ". Confirme explicitamente a adocao do namespace."}, 409)
-                    # Sem patch de Namespace: developer nao tem permissao cluster-scoped.
-                    # A confirmacao digitada autoriza exclusivamente este projeto.
-                    p = subprocess.run([os.environ.get("OC", "oc"), "delete", "project",
-                                        unlabeled[0], "--wait=false"],
-                                       capture_output=True, text=True, timeout=30,
-                                       env=os.environ.copy())
-                    if p.returncode:
-                        return self.send({"error": "Falha ao excluir projeto legado: " + p.stderr}, 409)
-                    result = {"ok": True, "code": 0,
-                              "output": "Exclusao solicitada para projeto legado confirmado: " + unlabeled[0]}
-                else:
-                    result = run_script(script, args)
-            else:
-                result = run_script(script, args)
+            result = run_script(script, args)
             if action == "cleanup" and result["ok"]:
                 try:
                     completed, remaining = await_cleanup(target_names(data))
