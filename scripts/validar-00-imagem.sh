@@ -9,7 +9,16 @@ IMAGE='registry.access.redhat.com/ubi9/httpd-24:latest'
 v_image() {
   local img
   img="$(val "$NS" deployment image-app '{.spec.template.spec.containers[0].image}')"
-  [ "$img" = "$IMAGE" ] &&
+  # oc new-app pode resolver :latest para @sha256:<digest> no Deployment.
+  # Aceita ambas as referencias do mesmo repositorio, mas nao outra imagem.
+  case "$img" in
+    "$IMAGE") ;;
+    registry.access.redhat.com/ubi9/httpd-24@sha256:*)
+      local digest="${img##*@sha256:}"
+      [[ "$digest" =~ ^[[:xdigit:]]{64}$ ]] || return 1
+      ;;
+    *) return 1 ;;
+  esac
   ! exists "$NS" bc image-app
 }
 v_replicas() {
