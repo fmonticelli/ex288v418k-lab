@@ -4,7 +4,7 @@
 
 |                        |                                                                                                          |
 | ---------------------- | -------------------------------------------------------------------------------------------------------- |
-| **Task relatada**      | "Deploy de aplicação com Helm" `[RELATO PESSOAL]` (o repositório de charts pode ser o Nexus: `HIPÓTESE`) |
+| **Objetivo do laboratório**      | "Deploy de aplicação com Helm" `[RELATO PESSOAL]` (o repositório de charts pode ser o Nexus: `HIPÓTESE`) |
 | **Objetivos oficiais** | "Create and use Helm charts" `[OFICIAL]`                                                                 |
 | **Projeto**            | `ex288-v3-t7` · `bash scripts/preparar-07.sh` · `validar-07.sh` · `limpar-07.sh`                         |
 | **Pré-requisito**      | `helm` no WSL; Nexus (E4) com o chart `ex288-hello` 0.1.0 e 0.2.0 (carregados por `infra-up.sh`)         |
