@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Limpeza interativa dos namespaces do laboratorio EX288 v3.
-# Preserva a infraestrutura por padrao; --infra inclui Gitea/Nexus.
+# Limpeza interativa dos projetos conhecidos do laboratorio EX288 v3.
+# Preserva Gitea/Nexus por padrao; --infra exige confirmacao adicional.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 require_login
@@ -12,49 +12,40 @@ case "${1:-}" in
   *) die "uso: bash scripts/limpar-tudo-v3.sh [--infra]" ;;
 esac
 
-# Descobre por label, alem dos namespaces legados conhecidos sem label.
-mapfile -t CANDIDATES < <(
-  { oc get projects -l ex288-lab=v3 -o name 2>/dev/null || true
-    oc get projects -o name 2>/dev/null || true
-  } | sed 's#.*/##' | sort -u
+# Nomes EXATOS. Nao descobre namespaces por label nem por prefixo.
+KNOWN=(
+  ex288-v3-t0 ex288-v3-t1 ex288-v3-t2 ex288-v3-t3
+  ex288-v3-t4 ex288-v3-t4-shared ex288-v3-t5 ex288-v3-t6 ex288-v3-t7 ex288-v3-t8
+  crimson quartz ember harbor cobalt willow falcon tundra
+  onyx cedar glacier copper copper-shared violet lantern summit orchard
+  # Nomes historicos dos simulados anteriores:
+  ex288-v3-sa-t1 ex288-v3-sa-t2 ex288-v3-sa-t3 ex288-v3-sa-t4
+  ex288-v3-sa-t5 ex288-v3-sa-t6 ex288-v3-sa-t7 ex288-v3-sa-t8
+  ex288-v3-sb-t1 ex288-v3-sb-t2 ex288-v3-sb-t3 ex288-v3-sb-t4
+  ex288-v3-sb-t4-shared ex288-v3-sb-t5 ex288-v3-sb-t6
+  ex288-v3-sb-t7 ex288-v3-sb-t8
 )
-LIST=()
-UNLABELED=()
-for ns in "${CANDIDATES[@]}"; do
-  case "$ns" in
-    ex288-v3-t[0-8]|ex288-v3-sa-t[1-8]|ex288-v3-sb-t[1-8]|ex288-v3-sb-t4-shared|ex288-v3-infra|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|copper-shared|violet|lantern|summit|orchard) ;;
-    *) continue ;;
-  esac
-  if [[ "$ns" == "$INFRA_NS" && "$WITH_INFRA" -eq 0 ]]; then continue; fi
-  label="$(oc get namespace "$ns" -o jsonpath='{.metadata.labels.ex288-lab}' 2>/dev/null || true)"
-  if [[ "$label" == v3 ]]; then
-    LIST+=("$ns")
-  elif [[ "$ns" == ex288-v3-t[0-8] || "$ns" == ex288-v3-sa-t[1-8] || "$ns" == ex288-v3-sb-t[1-8] || "$ns" == ex288-v3-sb-t4-shared || "$ns" == "$INFRA_NS" ]]; then
-    LIST+=("$ns")
-    UNLABELED+=("$ns")
-  else
-    echo "Ignorando namespace sem label do laboratorio: $ns" >&2
-  fi
-done
+if (( WITH_INFRA )); then KNOWN+=("$INFRA_NS"); fi
 
+LIST=()
+for ns in "${KNOWN[@]}"; do
+  if oc get project "$ns" >/dev/null 2>&1; then LIST+=("$ns"); fi
+done
 if (( ${#LIST[@]} == 0 )); then echo "Nada para remover."; exit 0; fi
+
 echo "Projetos que serao removidos:"
 printf '  - %s\n' "${LIST[@]}"
-if (( WITH_INFRA == 0 )); then echo "(infra $INFRA_NS preservada; use --infra para inclui-la)"; fi
-if (( ${#UNLABELED[@]} > 0 )); then
-  echo
-  echo "ATENCAO: estes namespaces legados NAO possuem ex288-lab=v3:"
-  printf '  - %s\n' "${UNLABELED[@]}"
-  echo "Confirme que pertencem ao laboratorio antes de exclui-los."
-  printf 'Para incluir esses projetos SEM LABEL, digite: remover legados > '
-  read -r confirm_legacy
-  [[ "$confirm_legacy" == "remover legados" ]] || { echo "Cancelado."; exit 1; }
-fi
+if (( ! WITH_INFRA )); then echo "(infra $INFRA_NS preservada; use --infra para inclui-la)"; fi
 printf 'Confirmar exclusao de TODOS os projetos listados? [digite sim] '
 read -r ans
 [[ "$ans" == sim ]] || { echo "Cancelado."; exit 1; }
 
-# Todos os nomes sao explicitamente permitidos; nao altera labels apenas para excluir.
+if (( WITH_INFRA )); then
+  printf 'ATENCAO: Gitea/Nexus e seus dados serao removidos. Digite o nome exato %s: ' "$INFRA_NS"
+  read -r confirm_infra
+  [[ "$confirm_infra" == "$INFRA_NS" ]] || { echo "Cancelado."; exit 1; }
+fi
+
 for ns in "${LIST[@]}"; do
   echo "removendo projeto $ns"
   oc delete project "$ns" --wait=false
