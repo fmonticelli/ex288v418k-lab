@@ -6,7 +6,7 @@ Preparação: `bash scripts/preparar-03.sh` (cria `ex288-v3-t3`, o Secret `git-c
 Repositório: `webapp-s2i` (tem `.s2i/environment` e um `.s2i/bin/assemble` customizado).
 
 **E1 — S2I a partir do Git interno.**
-Faça o deploy de `webapp-s2i` como **`s2i1`** com o builder Node.js 22 (UBI 9) do namespace `openshift` e o Secret `git-creds`. A Route `s2i1` deve devolver `"message":"from-s2i-environment"` e o caminho `/build-info` deve mostrar `built-at=`.
+Faça o deploy de `webapp-s2i` como **`s2i1`** com o builder Node.js 20 (UBI 9) do namespace `openshift` e o Secret `git-creds`. A Route `s2i1` deve devolver `"message":"from-s2i-environment"` e o caminho `/build-info` deve mostrar `built-at=`.
 
 **E2 — Dependências pelo mirror do Nexus.**
 Crie **`s2i-nexus`** da mesma forma, mas faça o `npm install` do build usar o repositório **`npm-public`** do Nexus (variável de **build**, não de runtime). O `/build-info` deve exibir o endereço do Nexus em `registry=`.
