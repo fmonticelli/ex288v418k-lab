@@ -184,14 +184,14 @@ class Handler(BaseHTTPRequestHandler):
                 try:
                     completed, remaining = await_cleanup(target_names(data))
                     if completed:
-                        result["output"] += "\\nExclusao confirmada: namespaces ausentes do cluster."
+                        result["output"] += "\nExclusao confirmada: namespaces ausentes do cluster."
                     else:
                         result["ok"] = False
                         result["code"] = 124
-                        result["output"] += "\\nTempo limite aguardando exclusao: " + ", ".join(x["name"] for x in remaining)
+                        result["output"] += "\nTempo limite aguardando exclusao: " + ", ".join(x["name"] for x in remaining)
                 except (RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
                     result["ok"] = False
-                    result["output"] += "\\nNao foi possivel confirmar a exclusao: " + str(exc)
+                    result["output"] += "\nNao foi possivel confirmar a exclusao: " + str(exc)
             return self.send(result)
         finally:
             LOCK.release()
