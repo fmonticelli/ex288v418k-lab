@@ -51,7 +51,7 @@ function showGrade(){
   $('grade-details').textContent=g?g.output:'Nenhuma correção registrada para a variante '+state.variant+'.';
 }
 function recordGrade(output){
-  const match=output.match(/TOTAL:\\s*(\\d+)\\s*\\/\\s*(\\d+)/);
+  const match=output.match(/TOTAL:\s*(\d+)\s*\/\s*(\d+)/);
   if(!match)return false;
   const earned=Number(match[1]),possible=Number(match[2]);
   if(!possible)return false;
