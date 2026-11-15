@@ -20,6 +20,15 @@ Sem construir uma imagem nem criar BuildConfig:
 4. A Route deve retornar **HTTP 200** e as duas réplicas devem estar prontas.
 5. Não altere o namespace `ex288-v3-infra`.
 
+**Teste HTTP e retorno esperado:**
+```bash
+HOST=$(oc get route image-app -n ex288-v3-t0 -o jsonpath='{.spec.host}')
+curl -sS -o /dev/null -w '%{http_code}\\n' "http://$HOST/"
+# Esperado: 200
+oc get deployment image-app -n ex288-v3-t0 -o jsonpath='{.status.readyReplicas}'; echo
+# Esperado: 2
+```
+
 **Validação:** `bash scripts/validar-00-imagem.sh`
 
 **Limpeza:** `bash scripts/limpar-00-imagem.sh`
