@@ -1,8 +1,8 @@
 [← mapa das 8 tasks](../00-guia/mapa-8-tasks.md) | [índice](../README.md)
 
-# Git interno e Nexus — como usar (a lacuna que o relato apontou)
+# Git interno e Nexus — infraestrutura de apoio
 
-> Relato: o ambiente da prova fornece um **servidor Git** e um **repositório de artefatos Nexus**; o Nexus apareceu "em algumas tasks" e pegou o seu amigo de surpresa `[RELATO PESSOAL]`. Não há relato público sobre isso. O courseware DO288 também usa um Nexus de sala (mirror Maven/npm), o que é indício `[OFICIAL]` de que ele existe no ecossistema de treinamento. **O uso exato na prova é `HIPÓTESE`**: o que segue cobre os usos plausíveis.
+> Este laboratório utiliza Gitea para hospedar repositórios Git privados e Nexus para disponibilizar dependências, pacotes e charts. Esses serviços permitem praticar builds e deploys em cenários com autenticação e repositórios internos.
 
 ## O lab (como foi desenhado)
 
