@@ -2,7 +2,7 @@
 const $ = id => document.getElementById(id);
 const store = 'ex288-portal-v1';
 let state = JSON.parse(localStorage.getItem(store) || '{}');
-state.mode ||= 'exam'; state.variant ||= 'A'; state.selected ||= '1'; state.checks ||= {}; state.started ||= Date.now();
+state.page ||= 'activities'; state.grades ||= {}; state.mode ||= 'exam'; state.variant ||= 'A'; state.selected ||= '1'; state.checks ||= {}; state.started ||= Date.now();
 let tasks = [], examText = '';
 const save = () => localStorage.setItem(store, JSON.stringify(state));
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
@@ -34,6 +34,30 @@ function checkboxItems(part){
   const lines=part.body.split('\n').filter(l=>/^\s*(?:[-*]\s+|\d+[.)]\s+)/.test(l));
   return (lines.length?lines:[part.title]).map((l,i)=>({id:String(i),title:l.replace(/^\s*(?:[-*]\s+|\d+[.)]\s+)/,'').replace(/\*\*/g,'').slice(0,180)}));
 }
+function setPage(page){
+  if(!['instructions','activities','grade'].includes(page))page='activities';
+  state.page=page;save();
+  for(const p of ['instructions','activities','grade'])$(p+'-page').hidden=p!==page;
+  document.querySelectorAll('#sections button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));
+  $('task-navigation').hidden=page!=='activities';
+  $('progress-card') && ($('progress-card').hidden=page!=='activities');
+  showGrade();
+}
+function showGrade(){
+  const g=state.grades[state.variant];
+  $('grade-value').textContent=g?g.score+' / 300':'— / 300';
+  $('grade-status').textContent=g?(g.score>=210?'Referência de aprovação atingida':'Abaixo da referência de aprovação'):'Execute a validação do simulado para calcular a nota.';
+  $('grade-bar').style.width=(g?g.score/3:0)+'%';
+  $('grade-details').textContent=g?g.output:'Nenhuma correção registrada para a variante '+state.variant+'.';
+}
+function recordGrade(output){
+  const match=output.match(/TOTAL:\\s*(\\d+)\\s*\\/\\s*(\\d+)/);
+  if(!match)return false;
+  const earned=Number(match[1]),possible=Number(match[2]);
+  if(!possible)return false;
+  const score=Math.max(0,Math.min(300,Math.round(earned/possible*300)));
+  state.grades[state.variant]={score,earned,possible,output};save();showGrade();return true;
+}
 function draw(){
   const parts=currentParts();let idx=Number(state.selected)||0;idx=Math.min(idx,parts.length-1);idx=Math.max(0,idx);
   state.selected=String(idx);save();
@@ -46,7 +70,7 @@ function draw(){
   const items=checkboxItems(part);$('checks').replaceChildren();
   items.forEach(item=>{const key=[state.mode,state.variant,part.id??idx,item.id].join(':');const row=document.createElement('div');row.className='item';const label=document.createElement('label');const cb=document.createElement('input');cb.type='checkbox';cb.checked=!!state.checks[key];cb.onchange=()=>{state.checks[key]=cb.checked;save();updateProgress();};const text=document.createElement('span');text.textContent=item.title;label.append(cb,text);row.append(label);$('checks').append(row);});
   $('validate').textContent=state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
-  updateProgress();
+  updateProgress();setPage(state.page);
 }
 function updateProgress(){
   let total=0,done=0;currentParts().forEach((p,i)=>checkboxItems(p).forEach(item=>{total++;if(state.checks[[state.mode,state.variant,p.id??i,item.id].join(':')])done++;}));
@@ -65,9 +89,11 @@ async function action(kind){
   try{
     const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const d=await r.json();$('status').textContent=d.ok?'Concluído (exit 0)':'Falhou (exit '+(d.code??r.status)+')';$('result').textContent=d.output??d.error??'Sem saída';
+    if(kind==='validate' && state.mode==='exam' && recordGrade(d.output??''))setPage('grade');
   }catch(e){$('status').textContent='Erro de conexão';$('result').textContent=String(e);}
   finally{buttons.forEach(b=>b.disabled=false);}
 }
+document.querySelectorAll('#sections button').forEach(b=>b.onclick=()=>setPage(b.dataset.page));
 $('mode').onchange=e=>{state.mode=e.target.value;state.selected='0';draw();};
 $('variant').onchange=async e=>{state.variant=e.target.value;state.selected='0';await load();};
 $('prepare').onclick=()=>action('prepare');$('validate').onclick=()=>action('validate');
