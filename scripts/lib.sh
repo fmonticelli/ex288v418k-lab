@@ -23,8 +23,30 @@ oc() {
 
 die() { echo "FAIL: $*" >&2; exit 2; }
 
+sim_ns() {
+  case "${1^^}:$2" in
+    A:1) echo crimson ;;
+    A:2) echo quartz ;;
+    A:3) echo ember ;;
+    A:4) echo harbor ;;
+    A:5) echo cobalt ;;
+    A:6) echo willow ;;
+    A:7) echo falcon ;;
+    A:8) echo tundra ;;
+    B:1) echo onyx ;;
+    B:2) echo cedar ;;
+    B:3) echo glacier ;;
+    B:4) echo copper ;;
+    B:5) echo violet ;;
+    B:6) echo lantern ;;
+    B:7) echo summit ;;
+    B:8) echo orchard ;;
+    B:4-shared) echo copper-shared ;;
+    *) die "namespace de simulado invalido: $1/$2" ;;
+  esac
+}
 assert_v3_ns() {
-  case "$1" in "${V3_PREFIX}"*) ;; *) die "recusado: '$1' nao tem o prefixo ${V3_PREFIX}" ;; esac
+  case "$1" in "${V3_PREFIX}"*|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared) ;; *) die "namespace nao autorizado: $1" ;; esac
 }
 
 require_login() {
