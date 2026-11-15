@@ -101,14 +101,14 @@ class Handler(BaseHTTPRequestHandler):
             return self.send({"error": "JSON invalido"}, 400)
         mode = data.get("mode")
         action = data.get("action")
-        if mode == "task" and str(data.get("task")) in TASKS and action in ("prepare", "validate"):
+        if mode == "task" and str(data.get("task")) in TASKS and action in ("prepare", "validate", "cleanup"):
             key = str(data["task"])
             suffix = TASKS[key][2]
-            script = f"{'preparar' if action == 'prepare' else 'validar'}-{suffix}.sh"
+            script = f"{ {'prepare': 'preparar', 'validate': 'validar', 'cleanup': 'limpar'}[action]}-{suffix}.sh"
             args = ()
-        elif mode == "exam" and data.get("variant") in ("A", "B") and action in ("prepare", "validate"):
+        elif mode == "exam" and data.get("variant") in ("A", "B") and action in ("prepare", "validate", "cleanup"):
             v = data["variant"]
-            script = f"simulado-{'preparar' if action == 'prepare' else 'corrigir'}.sh"
+            script = f"simulado-{ {'prepare': 'preparar', 'validate': 'corrigir', 'cleanup': 'limpar'}[action]}.sh"
             args = (v,)
         else:
             return self.send({"error": "Operacao nao permitida"}, 400)
