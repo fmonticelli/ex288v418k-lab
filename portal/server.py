@@ -175,11 +175,20 @@ class Handler(BaseHTTPRequestHandler):
                     if mode != "task" or len(unlabeled) != 1 or data.get("adopt_namespace") != unlabeled[0]:
                         return self.send({"error": "Namespace sem label do laboratorio: " + ", ".join(unlabeled) +
                                           ". Confirme explicitamente a adocao do namespace."}, 409)
-                    p = subprocess.run([os.environ.get("OC", "oc"), "label", "namespace", unlabeled[0],
-                                        "ex288-lab=v3", "--overwrite"], capture_output=True, text=True, timeout=20)
+                    # Sem patch de Namespace: developer nao tem permissao cluster-scoped.
+                    # A confirmacao digitada autoriza exclusivamente este projeto.
+                    p = subprocess.run([os.environ.get("OC", "oc"), "delete", "project",
+                                        unlabeled[0], "--wait=false"],
+                                       capture_output=True, text=True, timeout=30,
+                                       env=os.environ.copy())
                     if p.returncode:
-                        return self.send({"error": "Falha ao identificar namespace do lab: " + p.stderr}, 409)
-            result = run_script(script, args)
+                        return self.send({"error": "Falha ao excluir projeto legado: " + p.stderr}, 409)
+                    result = {"ok": True, "code": 0,
+                              "output": "Exclusao solicitada para projeto legado confirmado: " + unlabeled[0]}
+                else:
+                    result = run_script(script, args)
+            else:
+                result = run_script(script, args)
             if action == "cleanup" and result["ok"]:
                 try:
                     completed, remaining = await_cleanup(target_names(data))
