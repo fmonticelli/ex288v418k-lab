@@ -40,7 +40,7 @@ def target_names(data):
 def namespace_status(names):
     # Uma unica consulta ao cluster. O botao de limpeza so fica ativo para
     # namespaces do laboratorio (label ex288-lab=v3).
-    p = subprocess.run(["oc", "get", "namespaces", "-o", "json"],
+    p = subprocess.run([os.environ.get("OC", "oc"), "get", "projects", "-o", "json"],
                        capture_output=True, text=True, timeout=20, env=os.environ.copy())
     if p.returncode:
         raise RuntimeError(p.stderr.strip() or "Falha ao consultar namespaces")
