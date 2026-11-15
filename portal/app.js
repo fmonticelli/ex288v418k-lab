@@ -81,17 +81,51 @@ async function load(){
   const e=await fetch('/api/exam?variant='+state.variant);examText=(await e.json()).markdown;
   draw();
 }
+function operationStatus(type,title,message,details=false){
+  const banner=$('operation-banner');
+  banner.hidden=false;banner.className='operation-banner '+type;
+  $('operation-title').textContent=title;
+  $('operation-message').textContent=message;
+  $('operation-details').hidden=!details;
+}
+$('operation-details').onclick=()=>{$('results').hidden=false;$('results').scrollIntoView({behavior:'smooth',block:'start'});};
 async function action(kind){
-  const buttons=[$('prepare'),$('validate')];buttons.forEach(b=>b.disabled=true);
-  $('results').hidden=false;$('status').textContent='Executando '+kind+'... aguarde.';$('result').textContent='';
+  const buttons=[$('prepare'),$('validate')];
+  const isPrepare=kind==='prepare';
+  const target=state.mode==='exam'?'simulado '+state.variant:'tarefa '+currentParts()[Number(state.selected)].title;
+  buttons.forEach(b=>b.disabled=true);
+  $('prepare').textContent=isPrepare?'Preparando...':'Preparar ambiente';
+  $('validate').textContent=!isPrepare?'Validando...':state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
+  operationStatus('running',isPrepare?'Preparando ambiente...':'Executando validação...',
+    'Executando scripts para '+target+'. Aguarde a resposta do servidor; esta operação pode levar alguns minutos.');
+  $('results').hidden=false;
+  $('status').textContent='Operação em andamento...';
+  $('result').textContent='Aguardando conclusão do script. A saída será exibida aqui.';
   const body={mode:state.mode,action:kind};
   if(state.mode==='exam')body.variant=state.variant;else body.task=currentParts()[Number(state.selected)].id;
   try{
     const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    const d=await r.json();$('status').textContent=d.ok?'Concluído (exit 0)':'Falhou (exit '+(d.code??r.status)+')';$('result').textContent=d.output??d.error??'Sem saída';
-    if(kind==='validate' && state.mode==='exam' && recordGrade(d.output??''))setPage('grade');
-  }catch(e){$('status').textContent='Erro de conexão';$('result').textContent=String(e);}
-  finally{buttons.forEach(b=>b.disabled=false);}
+    const d=await r.json();
+    const ok=r.ok&&d.ok===true;
+    $('status').textContent=ok?'Concluído (exit 0)':'Falhou (exit '+(d.code??r.status)+')';
+    $('result').textContent=d.output??d.error??'Sem saída';
+    if(ok){
+      operationStatus('success',isPrepare?'Preparação concluída':'Validação concluída',
+        (isPrepare?'Script de preparação finalizado sem erros para ':'Script de validação finalizado para ')+target+'. Confira a saída para detalhes.',true);
+    }else{
+      operationStatus('failure',isPrepare?'Falha ao preparar ambiente':'Falha na validação',
+        'O script retornou erro para '+target+'. Abra os detalhes para identificar a causa.',true);
+    }
+    if(kind==='validate'&&state.mode==='exam'&&recordGrade(d.output??''))setPage('grade');
+  }catch(e){
+    $('status').textContent='Erro de conexão';
+    $('result').textContent=String(e);
+    operationStatus('failure','Erro de comunicação','Não foi possível obter a resposta do servidor. Consulte os detalhes.',true);
+  }finally{
+    buttons.forEach(b=>b.disabled=false);
+    $('prepare').textContent='Preparar ambiente';
+    $('validate').textContent=state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
+  }
 }
 document.querySelectorAll('#sections button').forEach(b=>b.onclick=()=>setPage(b.dataset.page));
 $('mode').onchange=e=>{state.mode=e.target.value;state.selected='0';draw();};
