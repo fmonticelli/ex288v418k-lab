@@ -4,12 +4,13 @@ Interface para ler os enunciados A/B ou T0–T8, marcar subtarefas, controlar o 
 
 ## Iniciar
 
+Na raiz do repositório, execute:
+
 ```bash
-git switch feature/ex288-418-simulado
-oc whoami
-export ROUTE_IP="$(crc ip)"
-python3 portal/server.py
+bash starta-portal.sh
 ```
+
+O script atualiza a branch atual com `git pull --ff-only`, verifica o login `oc`, configura `ROUTE_IP` automaticamente quando `crc` estiver disponível e inicia o servidor. Para iniciar sem atualizar o Git, use `bash starta-portal.sh --no-update`. Pare com `Ctrl+C`. Caso prefira iniciar manualmente, execute `python3 portal/server.py` após configurar o ambiente.
 
 Abra **http://127.0.0.1:8765** na mesma máquina. Não precisa instalar bibliotecas Python, Node ou dependências frontend. `EX288_PORT=8766 python3 portal/server.py` troca a porta.
 
