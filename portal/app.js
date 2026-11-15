@@ -8,15 +8,24 @@ let operationBusy=false, statusSequence=0;
 const save = () => localStorage.setItem(store, JSON.stringify(state));
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function markdown(s){
-  // Renderizacao simples e segura: escapa HTML antes de formatar.
-  const lines = escapeHTML(s).split('\n');
-  return lines.map(l=>{
-    if(/^#{1,4} /.test(l)){const n=l.match(/^#+/)[0].length;return '<h'+n+'>'+inline(l.slice(n+1))+'</h'+n+'>';}
-    if(/^\s*[-*] /.test(l))return '<p>• '+inline(l.replace(/^\s*[-*] /,''))+'</p>';
-    if(/^\s*\d+\. /.test(l))return '<p>'+inline(l)+'</p>';
-    if(/^> /.test(l))return '<blockquote>'+inline(l.slice(2))+'</blockquote>';
-    return l.trim()?'<p>'+inline(l)+'</p>':'';
-  }).join('');
+  // HTML escapado, com blocos de codigo preservados para comandos de prova.
+  const lines=String(s).split('\n');
+  let inCode=false, code=[], result=[];
+  for(const raw of lines){
+    if(/^\s*```/.test(raw)){
+      if(inCode){result.push('<pre class="command-block"><code>'+escapeHTML(code.join('\n'))+'</code></pre>');code=[];}
+      inCode=!inCode;continue;
+    }
+    if(inCode){code.push(raw);continue;}
+    const l=escapeHTML(raw);
+    if(/^#{1,4} /.test(l)){const n=l.match(/^#+/)[0].length;result.push('<h'+n+'>'+inline(l.slice(n+1))+'</h'+n+'>');}
+    else if(/^\s*[-*] /.test(l))result.push('<p>• '+inline(l.replace(/^\s*[-*] /,''))+'</p>');
+    else if(/^\s*\d+\. /.test(l))result.push('<p>'+inline(l)+'</p>');
+    else if(/^> /.test(l))result.push('<blockquote>'+inline(l.slice(2))+'</blockquote>');
+    else result.push(l.trim()?'<p>'+inline(l)+'</p>':'');
+  }
+  if(inCode)result.push('<pre class="command-block"><code>'+escapeHTML(code.join('\n'))+'</code></pre>');
+  return result.join('');
 }
 function inline(s){return s.replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>').replace(/`([^`]+)`/g,'<code>$1</code>');}
 function examParts(text){
