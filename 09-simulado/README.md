@@ -8,7 +8,7 @@ Reproduz o formato relatado `[RELATO PESSOAL]`: **8 tasks na mesma ordem (T1–T
 |---|---|---|
 | Enunciado | [A/enunciado.md](A/enunciado.md) | [B/enunciado.md](B/enunciado.md) |
 | Solução | [A/solucao.md](A/solucao.md) | [B/solucao.md](B/solucao.md) |
-| Projetos | `ex288-v3-sa-t1` … `sa-t8` | `ex288-v3-sb-t1` … `sb-t8` (+ `sb-t4-shared`) |
+| Projetos | `crimson` … `sa-t8` | `onyx` … `sb-t8` (+ `sb-t4-shared`) |
 
 ## Como rodar
 
