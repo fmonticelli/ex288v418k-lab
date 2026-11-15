@@ -49,6 +49,14 @@ assert_v3_ns() {
   case "$1" in "${V3_PREFIX}"*|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared) ;; *) die "namespace nao autorizado: $1" ;; esac
 }
 
+# Exclusao limitada aos nomes exatos das tarefas e simulados; nunca a infra.
+assert_lab_task_ns() {
+  case "$1" in
+    ex288-v3-t[0-8]|ex288-v3-t4-shared|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared) ;;
+    *) die "projeto fora da lista de tarefas do laboratorio: $1" ;;
+  esac
+}
+
 require_login() {
   command -v "$OC_BIN" >/dev/null 2>&1 || [ -x "$OC_BIN" ] || die "oc nao encontrado (defina OC=/caminho/oc)"
   oc whoami >/dev/null 2>&1 || die "nao logado no cluster (oc login ... ou KUBECONFIG)"
@@ -65,21 +73,16 @@ new_project() {  # <nome completo ex288-v3-*>
     sleep 3
   done
   [ "$(oc get project "$ns" -o jsonpath='{.status.phase}' 2>/dev/null)" = Terminating ] && die "$ns continua em remocao (Terminating) apos 3 min"
-  if oc get project "$ns" >/dev/null 2>&1 && [ "$(oc get namespace "$ns" -o jsonpath='{.metadata.labels.ex288-lab}' 2>/dev/null)" != v3 ]; then
-    die "namespace $ns ja existe e nao pertence ao laboratorio; nao sera alterado"
-  fi
   if ! oc get project "$ns" >/dev/null 2>&1; then
     printf 'apiVersion: project.openshift.io/v1\nkind: ProjectRequest\nmetadata:\n  name: %s\ndisplayName: %s\n' "$ns" "$ns" | oc create -f - >/dev/null
   fi
-  oc label namespace "$ns" ex288-lab=v3 --overwrite >/dev/null 2>&1 || true
 }
 
 delete_projects() {  # <ns>... ; so remove ex288-v3-* ; nunca a infra a menos que pedido explicitamente
   local n
   for n in "$@"; do
-    assert_v3_ns "$n"
+    assert_lab_task_ns "$n"
     if oc get project "$n" >/dev/null 2>&1; then
-      [ "$(oc get namespace "$n" -o jsonpath='{.metadata.labels.ex288-lab}' 2>/dev/null)" = v3 ] || die "recusado remover namespace sem label ex288-lab=v3: $n"
       echo "removendo projeto $n"; oc delete project "$n" --wait=false >/dev/null; else echo "(nao existe) $n"; fi
   done
 }
