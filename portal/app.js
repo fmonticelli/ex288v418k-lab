@@ -67,7 +67,7 @@ function draw(){
   $('nav').replaceChildren();
   parts.forEach((p,i)=>{const b=document.createElement('button');b.textContent=p.title;b.classList.toggle('active',i===idx);b.onclick=()=>{state.selected=String(i);draw();};$('nav').append(b);});
   const part=parts[idx];$('title').textContent=part.title;
-  $('question').innerHTML=markdown(part.body);
+  $('question').innerHTML=markdown(state.mode==='task' ? [part.body,...part.sections.map(section=>section.body)].join('\n\n') : part.body);
   const items=checkboxItems(part);$('checks').replaceChildren();
   items.forEach(item=>{const key=[state.mode,state.variant,part.id??idx,item.id].join(':');const row=document.createElement('div');row.className='item';const label=document.createElement('label');const cb=document.createElement('input');cb.type='checkbox';cb.checked=!!state.checks[key];cb.onchange=()=>{state.checks[key]=cb.checked;save();updateProgress();};const text=document.createElement('span');text.textContent=item.title;label.append(cb,text);row.append(label);$('checks').append(row);});
   $('validate').textContent=state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
