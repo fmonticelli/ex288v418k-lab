@@ -110,7 +110,7 @@ async function refreshNamespaceStatus(){
     const foreign=d.namespaces.filter(n=>!n.managed);
     namespaceSnapshot=d.namespaces;
     $('cleanup').disabled=!d.can_cleanup;
-    $('cleanup').title=foreign.length?'Namespace legado sem label: será solicitada confirmação adicional para '+foreign.map(n=>n.name).join(', '):owned.length?'Remover: '+owned.map(n=>n.name).join(', '):'Nenhum namespace provisionado encontrado';
+    $('cleanup').title=d.namespaces.length?'Remover: '+d.namespaces.map(n=>n.name).join(', '):'Nenhum namespace provisionado encontrado';
   }catch(e){
     if(seq!==statusSequence||operationBusy)return;
     namespaceSnapshot=[];
@@ -147,13 +147,7 @@ async function action(kind){
   if(isCleanup){
     const scope=state.mode==='exam'?'TODOS os namespaces do Simulado '+state.variant+' (incluindo o compartilhado, se houver)':'o namespace da tarefa selecionada';
     if(!confirm('Excluir '+scope+'? Esta operação remove os recursos do OpenShift e não pode ser desfeita. A infraestrutura Gitea/Nexus e a nota registrada serão preservadas.'))return;
-    const legacy=namespaceSnapshot.filter(n=>!n.managed);
-    if(legacy.length){
-      if(state.mode!=='task'||legacy.length!==1){alert('Existem namespaces sem label do laboratório. Regularize os labels antes de limpar o simulado.');return;}
-      const expected=legacy[0].name;
-      const typed=prompt('O namespace '+expected+' não tem o label ex288-lab=v3. Para assumir que ele pertence ao laboratório e EXCLUÍ-LO, digite exatamente: '+expected);
-      if(typed!==expected)return;
-    }
+
   }
   operationBusy=true;statusSequence++;
   buttons.forEach(b=>b.disabled=true);
@@ -167,7 +161,6 @@ async function action(kind){
   $('result').textContent='Aguardando conclusão do script. A saída será exibida aqui.';
   const body={mode:state.mode,action:kind};
   if(state.mode==='exam')body.variant=state.variant;else body.task=currentParts()[Number(state.selected)].id;
-  if(isCleanup){const legacy=namespaceSnapshot.filter(n=>!n.managed);if(legacy.length===1&&state.mode==='task')body.adopt_namespace=legacy[0].name;}
   try{
     const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const d=await r.json();
