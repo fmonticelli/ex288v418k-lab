@@ -16,8 +16,8 @@ GIT=http://<host-do-git>/ex288 ; NEXUS=http://<host-do-nexus> ; NEXUS_PASS=<senh
 
 ```bash
 oc create secret generic git-creds --type=kubernetes.io/basic-auth \
-  --from-literal=username="$GIT_USER" --from-literal=password="$GIT_PASS" -n ex288-v3-sb-t1   # idem para ...-sb-t2 e ...-sb-t3
-oc get secret git-creds -n ex288-v3-sb-t1 -o jsonpath='{.type}'                              # kubernetes.io/basic-auth
+  --from-literal=username="$GIT_USER" --from-literal=password="$GIT_PASS" -n onyx   # idem para ...-sb-t2 e ...-sb-t3
+oc get secret git-creds -n onyx -o jsonpath='{.type}'                              # kubernetes.io/basic-auth
 ```
 
 Ele só serve ao **build** (o pod de build clona de novo com ele, via `--source-secret git-creds` ou `oc set build-secret --source bc/NOME git-creds`). Na T8 o Tekton usa outro Secret, `git-basic-auth`, com a anotação `tekton.dev/git-0` (veja a [solução da T8](../../08-cicd-pipelines/solucao.md)).
@@ -31,13 +31,13 @@ git ls-remote "$GIT/webapp.git"               # digite usuário e senha uma vez;
 
 `VERIFICADO` no seu WSL: sem credencial, o `git ls-remote` falha (rc 128); com o helper `cache` e a credencial digitada uma vez, o `oc new-app` do T1 abaixo criou o BuildConfig com `sourceSecret: git-creds` e `ref: dev`, e o build terminou `Complete`. O cache dura 3600 s: se o `oc new-app` voltar a falhar em um repositório privado depois de uma hora, repita o `git ls-remote`.
 
-**T1** (`-n ex288-v3-sb-t1`)
+**T1** (`-n onyx`)
 ```bash
 oc new-app --name gateway --source-secret git-creds --context-dir api -l tier=edge -e APP_MESSAGE=sim-b --image-stream openshift/nodejs:20-ubi9 --code "$GIT/monorepo.git"
 oc new-app --name static  --source-secret git-creds --context-dir site "openshift/httpd:2.4-ubi9~$GIT/monorepo.git"      # so index.html: precisa de builder~URL
 oc expose service gateway ; oc expose service static ; oc create route edge static-tls --service=static --insecure-policy=Redirect
 ```
-**T2** (`-n ex288-v3-sb-t2`) — `legacy` e `ledger`; o raciocínio do `Dockerfile.root` está em [T2 E3](../../02-deploy-from-dockerfile/solucao.md) e o do build binário em [T2 E4](../../02-deploy-from-dockerfile/solucao.md). O corretor exige ≥ 2 builds do `legacy` (o 1º, do `oc new-app`, usa o `Dockerfile` padrão e funciona; o 2º vem depois do `dockerfilePath` + correção).
+**T2** (`-n cedar`) — `legacy` e `ledger`; o raciocínio do `Dockerfile.root` está em [T2 E3](../../02-deploy-from-dockerfile/solucao.md) e o do build binário em [T2 E4](../../02-deploy-from-dockerfile/solucao.md). O corretor exige ≥ 2 builds do `legacy` (o 1º, do `oc new-app`, usa o `Dockerfile` padrão e funciona; o 2º vem depois do `dockerfilePath` + correção).
 ```bash
 # 1 e 2) legacy: BuildConfig no Dockerfile.root + ARG do Nexus; corrigir o Dockerfile no Git; novo build
 oc new-app --name legacy --source-secret git-creds --strategy docker --code "$GIT/webapp-docker.git"
@@ -80,7 +80,7 @@ oc start-build reports --follow ; oc expose service reports
 ```bash
 oc create configmap shop-cfg --from-literal=GREETING=SimB --from-literal=LANG_CODE=en-US ; oc set env deployment/cfgapp --from=configmap/shop-cfg
 oc patch deployment/cfgapp --type=json -p '[{"op":"add","path":"/spec/template/spec/containers/0/env/-","value":{"name":"DB_USER","valueFrom":{"secretKeyRef":{"name":"shop-db","key":"u"}}}},{"op":"add","path":"/spec/template/spec/containers/0/env/-","value":{"name":"DB_PASSWORD","valueFrom":{"secretKeyRef":{"name":"shop-db","key":"p"}}}}]'
-V=$(oc get secret shop-token -n ex288-v3-sb-t4-shared -o jsonpath='{.data.value}' | base64 -d)
+V=$(oc get secret shop-token -n copper-shared -o jsonpath='{.data.value}' | base64 -d)
 oc create secret generic shop-token --from-literal=value="$V" ; unset V
 ```
 Para `API_TOKEN` a partir da chave `value` use `valueFrom` (`oc set env --from=secret/… --prefix=API_` geraria `API_VALUE`, e `oc set env` não tem `--keys`):
@@ -94,7 +94,7 @@ oc set probe deployment/slowapp --readiness --open-tcp=8080 --period-seconds=5
 oc set probe deployment/slowapp --liveness --period-seconds=10 -- cat /proc/1/cmdline
 oc set probe deployment/slowbad --startup --get-url=http://:8080/healthz --period-seconds=5 --failure-threshold=12
 ```
-**T6** (`-n ex288-v3-sb-t6`) — o template é escrito do zero; o corretor lê o objeto `Template` **`stack`** no projeto (`oc create -f`), os parâmetros `NAME`/`MESSAGE`/`TOKEN`, a chave **`token`** do Secret `${NAME}-token` e as rotas.
+**T6** (`-n lantern`) — o template é escrito do zero; o corretor lê o objeto `Template` **`stack`** no projeto (`oc create -f`), os parâmetros `NAME`/`MESSAGE`/`TOKEN`, a chave **`token`** do Secret `${NAME}-token` e as rotas.
 ```bash
 cat > stack.yaml <<'EOF'
 apiVersion: template.openshift.io/v1
@@ -143,11 +143,11 @@ for n in stack-a stack-b; do curl -sf --retry 6 --retry-delay 2 "http://$(oc get
 ```bash
 helm package apps/helm/ex288-hello
 printf 'replicaCount: 2\nmessage: prod-b\n' > values.yaml
-helm install inventory ./ex288-hello-0.1.0.tgz -f values.yaml -n ex288-v3-sb-t7
-helm upgrade inventory ./ex288-hello-0.1.0.tgz -f values.yaml --set message=prod-b2 -n ex288-v3-sb-t7
-helm rollback inventory 1 -n ex288-v3-sb-t7        # revisao 3, mensagem prod-b
+helm install inventory ./ex288-hello-0.1.0.tgz -f values.yaml -n summit
+helm upgrade inventory ./ex288-hello-0.1.0.tgz -f values.yaml --set message=prod-b2 -n summit
+helm rollback inventory 1 -n summit        # revisao 3, mensagem prod-b
 ```
-**T8** (`-n ex288-v3-sb-t8`; execute a partir da raiz do material, onde está `apps/`) — os nomes do enunciado são exatos: `broken-ci`, `sim-ci`, `native`. Os mecanismos estão em [08-cicd-pipelines/solucao.md](../../08-cicd-pipelines/solucao.md) (E3 e E4).
+**T8** (`-n orchard`; execute a partir da raiz do material, onde está `apps/`) — os nomes do enunciado são exatos: `broken-ci`, `sim-ci`, `native`. Os mecanismos estão em [08-cicd-pipelines/solucao.md](../../08-cicd-pipelines/solucao.md) (E3 e E4).
 ```bash
 # 1) broken-ci: o arquivo do material NAO e aplicado (o webhook rejeita o runAfter "writ"); corrija os 2 defeitos e aplique
 oc apply -f apps/pipeline/pipeline-broken.yaml          # Error ... task read depends on writ but writ wasn't present in Pipeline
