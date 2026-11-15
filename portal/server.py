@@ -123,7 +123,7 @@ class Handler(BaseHTTPRequestHandler):
             for k, (title, path, _) in TASKS.items():
                 md = read(path)
                 tasks.append({"id": k, "title": title, "intro": md.split("**E1")[0],
-                              "sections": sections(md) if k != "0" else [{"id": "1", "title": "Resultado esperado", "body": md}]})
+                              "sections": sections(md) if k != "0" else [{"id": "1", "title": "Resultado esperado", "body": ""}]})
             return self.send({"tasks": tasks})
         if url.path == "/api/exam":
             variant = parse_qs(url.query).get("variant", ["A"])[0]
