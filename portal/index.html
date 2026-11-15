@@ -1,13 +1,50 @@
 <!doctype html>
-<html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EX288 Exam Simulator</title>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EX288 | Exam Workspace</title>
 <style>
-:root{font:16px system-ui,sans-serif;color:#e6e8ed;background:#10151d}*{box-sizing:border-box}body{margin:0}header{padding:16px 24px;border-bottom:1px solid #354052;display:flex;align-items:center;justify-content:space-between;gap:12px}h1{font-size:1.15rem;margin:0}button,select{font:inherit;padding:9px 13px;border-radius:6px;border:1px solid #64748b;background:#233045;color:white;cursor:pointer}button:disabled{opacity:.5;cursor:wait}button.primary{background:#1865b8;border-color:#408ee2}button.danger{background:#813438}main{display:grid;grid-template-columns:260px 1fr;min-height:calc(100vh - 70px)}aside{padding:18px;border-right:1px solid #354052}aside button{width:100%;text-align:left;margin-bottom:8px}article{padding:24px;max-width:1050px;width:100%}.muted{color:#aeb9c9}.panel{background:#19222e;border:1px solid #36465b;border-radius:10px;padding:18px;margin:14px 0}.row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}.spaced{justify-content:space-between}.item{border-top:1px solid #36465b;padding:14px 0}label{display:flex;gap:10px;align-items:flex-start;cursor:pointer}input[type=checkbox]{width:18px;height:18px;flex-shrink:0}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#0d1219;padding:14px;border-radius:6px;line-height:1.6}#result{max-height:480px;overflow:auto}#clock{font-variant-numeric:tabular-nums;font-size:1.4rem}#progress{height:8px;background:#344052;border-radius:5px;overflow:hidden}#bar{height:100%;width:0;background:#4ca6e8}a{color:#8dc5ff}#question{line-height:1.65}#question h2{margin-top:25px}#question code{background:#29384b;padding:2px 5px;border-radius:4px}#question ul{padding-left:24px}#question blockquote{border-left:3px solid #667e9b;padding-left:14px;color:#c6d2e2}@media(max-width:760px){main{display:block}aside{border-right:0;border-bottom:1px solid #354052}article{padding:14px}}
-</style></head><body>
-<header><h1>EX288 · Exam Simulator</h1><div class="row"><span id="clock">00:00:00</span><button id="reset">Reiniciar relógio</button></div></header>
-<main><aside><div class="row"><label for="mode">Modo</label><select id="mode"><option value="exam">Simulado completo</option><option value="task">Treino por tarefa</option></select><select id="variant"><option>A</option><option>B</option></select></div><p class="muted" id="subtitle"></p><nav id="nav"></nav><div id="progress"><div id="bar"></div></div><p class="muted" id="count"></p></aside>
-<article><div class="row spaced"><h2 id="title">Carregando...</h2><div class="row"><button id="prepare">Preparar ambiente</button><button class="primary" id="validate">Validar resultado</button></div></div>
-<p class="muted">Checkboxes são apenas anotações. A correção consulta os recursos reais no OpenShift e não depende do método utilizado (CLI, console ou YAML).</p>
-<section class="panel" id="question"></section><section class="panel"><h3>Checklist pessoal</h3><div id="checks"></div></section>
-<section class="panel" id="results" hidden><h3>Resultado da validação</h3><p id="status"></p><pre id="result"></pre></section>
-</article></main><script src="/app.js"></script></body></html>
+:root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:#182235;background:#f4f6fa;font-size:14px}
+*{box-sizing:border-box}body{margin:0}button,select{font:inherit}button{cursor:pointer}button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #93b9ff;outline-offset:2px}
+header{height:76px;background:#fff;border-bottom:1px solid #e4e9f1;display:flex;align-items:center;justify-content:space-between;padding:0 34px;gap:18px}
+.brand{display:flex;align-items:center;gap:14px}.brand-mark{display:grid;place-items:center;width:43px;height:43px;background:#152b4e;color:white;font-size:15px;font-weight:800;border-radius:11px;letter-spacing:-1px}.brand h1{font-size:16px;letter-spacing:-.4px;margin:0}.brand small{display:block;color:#748197;margin-top:4px;font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase}
+.top-actions{display:flex;align-items:center;gap:14px}.clock-card{display:flex;align-items:center;gap:13px;border-right:1px solid #e6eaf1;padding-right:22px}.clock-label{color:#78849a;font-size:11px;text-transform:uppercase;letter-spacing:1px;font-weight:700}#clock{font-size:21px;font-weight:750;letter-spacing:.6px;font-variant-numeric:tabular-nums;color:#152b4e}
+button,select{background:white;color:#34445d;border:1px solid #dce3ed;border-radius:9px;padding:11px 14px;font-weight:650;transition:background .15s,border-color .15s}
+button:hover,select:hover{background:#f1f5fb;border-color:#b7c6da}button:disabled{opacity:.5;cursor:wait}.primary{background:#1760bd;color:#fff;border-color:#1760bd;box-shadow:0 4px 10px #1760bd20}.primary:hover{background:#0d4e9f;color:white}.button-icon{font-size:16px;margin-right:5px}
+main{display:grid;grid-template-columns:292px minmax(0,1fr);min-height:calc(100vh - 76px)}
+aside{background:#fff;border-right:1px solid #e4e9f1;padding:28px 20px;display:flex;flex-direction:column;gap:22px}
+.sidebar-label,.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:1.6px;font-weight:800;color:#8390a3;margin:0 0 12px}
+#mode{width:100%;margin-bottom:10px}#variant{width:100%}#subtitle{font-size:12px;line-height:1.6;color:#7c889a;margin:10px 0 0}
+#nav{display:flex;flex-direction:column;gap:5px;max-height:54vh;overflow:auto;padding-right:3px}#nav button{width:100%;text-align:left;border:0;border-radius:9px;background:transparent;color:#58677e;font-weight:600;padding:12px 13px;line-height:1.45}#nav button:hover{background:#f1f5fa}#nav button.active{background:#eaf2ff;color:#1558ad;box-shadow:inset 3px 0 #1760bd}
+.progress-card{margin-top:auto;background:#f5f8fc;border:1px solid #e7edf5;border-radius:12px;padding:17px}.progress-heading{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.progress-heading strong{font-size:13px}#count{color:#76859b;font-size:12px;margin:12px 0 0}#progress{height:7px;background:#dfe7f1;border-radius:10px;overflow:hidden}#bar{height:100%;background:#2375d1;width:0;transition:width .25s}
+article{padding:38px clamp(22px,4vw,68px) 70px;max-width:1450px;width:100%;margin:auto}.page-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:25px}.page-heading h2{font-size:clamp(23px,2.5vw,31px);letter-spacing:-1px;line-height:1.2;margin:8px 0 0;color:#14253d}.page-actions{display:flex;gap:10px;flex-wrap:wrap}.eyebrow{color:#2770bf;margin:0}
+.notice{display:flex;align-items:flex-start;gap:12px;background:#eaf2fc;border:1px solid #d6e5f8;border-radius:11px;padding:15px 18px;color:#45617f;font-size:13px;line-height:1.6;margin-bottom:25px}.notice-mark{font-weight:800;color:#1760bd}
+.content-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(285px,1fr);gap:22px;align-items:start}.panel{background:white;border:1px solid #e2e8f1;border-radius:14px;box-shadow:0 5px 22px #1c365508;overflow:hidden}.panel-heading{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eaf0f6;padding:20px 23px}.panel-heading h3{font-size:15px;margin:0;letter-spacing:-.2px}.panel-heading small{font-size:11px;font-weight:700;color:#8c99ac;text-transform:uppercase;letter-spacing:1px}
+#question{padding:22px 26px 30px;line-height:1.75;font-size:14px;color:#415169;overflow-wrap:anywhere}#question h1,#question h2,#question h3{color:#192b45;line-height:1.35;letter-spacing:-.4px;margin:22px 0 10px}#question h1{font-size:22px}#question h2{font-size:18px}#question h3{font-size:15px}#question p{margin:9px 0}#question code{background:#f0f4f9;color:#25528a;padding:3px 6px;border-radius:5px;font-size:12px}#question blockquote{margin:12px 0;border-left:3px solid #9dbfe8;padding:5px 14px;background:#f6f9fd}
+#checks{padding:5px 21px 15px}.item{border-bottom:1px solid #edf1f6;padding:15px 2px}.item:last-child{border-bottom:0}.item label{display:flex;align-items:flex-start;gap:12px;line-height:1.55;color:#526178;cursor:pointer}.item input{margin-top:2px;width:17px;height:17px;accent-color:#1760bd;flex-shrink:0}.item label:has(input:checked) span{color:#8493a5;text-decoration:line-through}
+#results{margin-top:22px}#results[hidden]{display:none}#status{margin:18px 23px;font-weight:700;color:#285f9f}#result{margin:0 22px 22px;padding:18px;background:#142235;color:#d9e8fa;border-radius:9px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:500px;overflow:auto;line-height:1.6;font-size:12px}
+@media(max-width:1050px){.content-grid{grid-template-columns:1fr}#nav{max-height:none}}@media(max-width:720px){header{height:auto;min-height:76px;padding:14px 18px;flex-wrap:wrap}.clock-card{border:0;padding:0}main{display:block}aside{border-right:0;border-bottom:1px solid #e4e9f1;padding:18px}#nav{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));max-height:220px}article{padding:26px 16px}.page-actions{width:100%}.page-actions button{flex:1}.progress-card{margin-top:0}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="brand-mark">EX</div><div><h1>EX288 Exam Workspace</h1><small>OpenShift 4.18 · Practical Lab</small></div></div>
+  <div class="top-actions"><div class="clock-card"><div><div class="clock-label">Tempo decorrido</div><div id="clock">00:00:00</div></div></div><button id="reset">↻ Reiniciar tempo</button></div>
+</header>
+<main>
+<aside>
+  <div><p class="sidebar-label">Configuração</p><select id="mode" aria-label="Modo de estudo"><option value="exam">Simulado completo</option><option value="task">Treino por tarefa</option></select><select id="variant" aria-label="Versão do simulado"><option>A</option><option>B</option></select><p id="subtitle"></p></div>
+  <div><p class="sidebar-label">Navegação</p><nav id="nav" aria-label="Questões"></nav></div>
+  <div class="progress-card"><div class="progress-heading"><strong>Seu progresso</strong><span style="font-size:11px;color:#8493a5">CHECKLIST</span></div><div id="progress"><div id="bar"></div></div><p id="count"></p></div>
+</aside>
+<article>
+  <div class="page-heading"><div><p class="eyebrow">Ambiente de avaliação · EX288</p><h2 id="title">Carregando...</h2></div><div class="page-actions"><button id="prepare">Preparar ambiente</button><button class="primary" id="validate">Validar resultado</button></div></div>
+  <div class="notice"><span class="notice-mark">i</span><span>As marcações são apenas para acompanhamento pessoal. A avaliação verifica os recursos reais no OpenShift, independentemente de você usar CLI, console web ou manifests YAML.</span></div>
+  <div class="content-grid">
+    <section class="panel"><div class="panel-heading"><h3>Enunciado da atividade</h3><small>Requisitos</small></div><div id="question"></div></section>
+    <section class="panel"><div class="panel-heading"><h3>Checklist de execução</h3><small>Controle pessoal</small></div><div id="checks"></div></section>
+  </div>
+  <section class="panel" id="results" hidden><div class="panel-heading"><h3>Resultado da validação</h3><small>Cluster OpenShift</small></div><p id="status"></p><pre id="result"></pre></section>
+</article>
+</main><script src="/app.js"></script>
+</body></html>
