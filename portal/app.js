@@ -4,7 +4,7 @@ const store = 'ex288-portal-v1';
 let state = JSON.parse(localStorage.getItem(store) || '{}');
 state.page ||= 'activities'; state.grades ||= {}; state.mode ||= 'exam'; state.variant ||= 'A'; state.selected ||= '1'; state.checks ||= {}; state.started ||= Date.now();
 let tasks = [], examText = '';
-let operationBusy=false, statusSequence=0;
+let operationBusy=false, statusSequence=0, namespaceSnapshot=[];
 const save = () => localStorage.setItem(store, JSON.stringify(state));
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function markdown(s){
@@ -106,13 +106,28 @@ async function refreshNamespaceStatus(){
     if(!r.ok)throw Error(d.error||'Erro na consulta');
     const owned=d.namespaces.filter(n=>n.managed);
     const foreign=d.namespaces.filter(n=>!n.managed);
+    namespaceSnapshot=d.namespaces;
     $('cleanup').disabled=!d.can_cleanup;
-    $('cleanup').title=foreign.length?'Existem namespaces sem label do laboratório; limpeza poderá falhar: '+foreign.map(n=>n.name).join(', '):owned.length?'Remover: '+owned.map(n=>n.name).join(', '):'Nenhum namespace provisionado encontrado';
+    $('cleanup').title=foreign.length?'Namespace legado sem label: será solicitada confirmação adicional para '+foreign.map(n=>n.name).join(', '):owned.length?'Remover: '+owned.map(n=>n.name).join(', '):'Nenhum namespace provisionado encontrado';
   }catch(e){
     if(seq!==statusSequence||operationBusy)return;
+    namespaceSnapshot=[];
     $('cleanup').disabled=true;
     $('cleanup').title='Não foi possível consultar o cluster: '+String(e);
   }
+}
+function toggleOperationDetails(force){
+  const panel=$('operation-output'),button=$('operation-details');
+  const expand=typeof force==='boolean'?force:panel.hidden;
+  if(expand){
+    panel.hidden=false;
+    requestAnimationFrame(()=>panel.classList.add('expanded'));
+  }else{
+    panel.classList.remove('expanded');
+    panel.hidden=true;
+  }
+  button.setAttribute('aria-expanded',String(expand));
+  button.textContent=expand?'Ocultar detalhes ▴':'Ver detalhes ▾';
 }
 function operationStatus(type,title,message,details=false){
   const banner=$('operation-banner');
@@ -121,7 +136,7 @@ function operationStatus(type,title,message,details=false){
   $('operation-message').textContent=message;
   $('operation-details').hidden=!details;
 }
-$('operation-details').onclick=()=>{$('results').hidden=false;$('results').scrollIntoView({behavior:'smooth',block:'start'});};
+$('operation-details').onclick=()=>toggleOperationDetails();
 async function action(kind){
   const buttons=[$('prepare'),$('validate'),$('cleanup')];
   const isPrepare=kind==='prepare';
@@ -130,6 +145,13 @@ async function action(kind){
   if(isCleanup){
     const scope=state.mode==='exam'?'TODOS os namespaces do Simulado '+state.variant+' (incluindo o compartilhado, se houver)':'o namespace da tarefa selecionada';
     if(!confirm('Excluir '+scope+'? Esta operação remove os recursos do OpenShift e não pode ser desfeita. A infraestrutura Gitea/Nexus e a nota registrada serão preservadas.'))return;
+    const legacy=namespaceSnapshot.filter(n=>!n.managed);
+    if(legacy.length){
+      if(state.mode!=='task'||legacy.length!==1){alert('Existem namespaces sem label do laboratório. Regularize os labels antes de limpar o simulado.');return;}
+      const expected=legacy[0].name;
+      const typed=prompt('O namespace '+expected+' não tem o label ex288-lab=v3. Para assumir que ele pertence ao laboratório e EXCLUÍ-LO, digite exatamente: '+expected);
+      if(typed!==expected)return;
+    }
   }
   operationBusy=true;statusSequence++;
   buttons.forEach(b=>b.disabled=true);
@@ -138,15 +160,17 @@ async function action(kind){
   $('cleanup').textContent=isCleanup?'Limpando...':'Limpar ambiente';
   operationStatus('running',isCleanup?'Limpando ambiente...':isPrepare?'Preparando ambiente...':'Executando validação...',
     'Executando scripts para '+target+'. Aguarde a resposta do servidor; esta operação pode levar alguns minutos.');
-  $('results').hidden=false;
+  toggleOperationDetails(false);
   $('status').textContent='Operação em andamento...';
   $('result').textContent='Aguardando conclusão do script. A saída será exibida aqui.';
   const body={mode:state.mode,action:kind};
   if(state.mode==='exam')body.variant=state.variant;else body.task=currentParts()[Number(state.selected)].id;
+  if(isCleanup){const legacy=namespaceSnapshot.filter(n=>!n.managed);if(legacy.length===1&&state.mode==='task')body.adopt_namespace=legacy[0].name;}
   try{
     const r=await fetch('/api/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     const d=await r.json();
     const ok=r.ok&&d.ok===true;
+    $('operation-details').hidden=false;
     $('status').textContent=ok?'Concluído (exit 0)':'Falhou (exit '+(d.code??r.status)+')';
     $('result').textContent=d.output??d.error??'Sem saída';
     if(ok){
@@ -155,11 +179,13 @@ async function action(kind){
     }else{
       operationStatus('failure',isCleanup?'Falha ao limpar ambiente':isPrepare?'Falha ao preparar ambiente':'Falha na validação',
         'O script retornou erro para '+target+'. Abra os detalhes para identificar a causa.',true);
+      toggleOperationDetails(true);
     }
     if(kind==='validate'&&state.mode==='exam'&&recordGrade(d.output??''))setPage('grade');
   }catch(e){
     $('status').textContent='Erro de conexão';
     $('result').textContent=String(e);
+    $('operation-details').hidden=false;
     operationStatus('failure','Erro de comunicação','Não foi possível obter a resposta do servidor. Consulte os detalhes.',true);
   }finally{
     operationBusy=false;
