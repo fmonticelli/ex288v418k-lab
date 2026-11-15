@@ -65,6 +65,9 @@ new_project() {  # <nome completo ex288-v3-*>
     sleep 3
   done
   [ "$(oc get project "$ns" -o jsonpath='{.status.phase}' 2>/dev/null)" = Terminating ] && die "$ns continua em remocao (Terminating) apos 3 min"
+  if oc get project "$ns" >/dev/null 2>&1 && [ "$(oc get namespace "$ns" -o jsonpath='{.metadata.labels.ex288-lab}' 2>/dev/null)" != v3 ]; then
+    die "namespace $ns ja existe e nao pertence ao laboratorio; nao sera alterado"
+  fi
   if ! oc get project "$ns" >/dev/null 2>&1; then
     printf 'apiVersion: project.openshift.io/v1\nkind: ProjectRequest\nmetadata:\n  name: %s\ndisplayName: %s\n' "$ns" "$ns" | oc create -f - >/dev/null
   fi
@@ -75,7 +78,9 @@ delete_projects() {  # <ns>... ; so remove ex288-v3-* ; nunca a infra a menos qu
   local n
   for n in "$@"; do
     assert_v3_ns "$n"
-    if oc get project "$n" >/dev/null 2>&1; then echo "removendo projeto $n"; oc delete project "$n" --wait=false >/dev/null; else echo "(nao existe) $n"; fi
+    if oc get project "$n" >/dev/null 2>&1; then
+      [ "$(oc get namespace "$n" -o jsonpath='{.metadata.labels.ex288-lab}' 2>/dev/null)" = v3 ] || die "recusado remover namespace sem label ex288-lab=v3: $n"
+      echo "removendo projeto $n"; oc delete project "$n" --wait=false >/dev/null; else echo "(nao existe) $n"; fi
   done
 }
 
