@@ -4,7 +4,7 @@
 
 |                      |                                                                                  |
 | -------------------- | -------------------------------------------------------------------------------- |
-| **Task relatada**    | "Definir probes: startup, liveness e readiness" `[RELATO PESSOAL]`               |
+| **Objetivo do laboratório**    | "Definir probes: startup, liveness e readiness" `[RELATO PESSOAL]`               |
 | **Objetivo oficial** | "Use application health monitoring" `[OFICIAL]`                                  |
 | **Projeto**          | `ex288-v3-t5` · `bash scripts/preparar-05.sh` · `validar-05.sh` · `limpar-05.sh` |
 | **Pré-requisito**    | só o CRC (sem Git/Nexus)                                                         |
