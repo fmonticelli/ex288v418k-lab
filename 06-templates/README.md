@@ -4,7 +4,7 @@
 
 |                        |                                                                                                                                                                                                 |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Task relatada**      | "Deploy de aplicação a partir de Template" `[RELATO PESSOAL]`                                                                                                                                   |
+| **Objetivo do laboratório**      | "Deploy de aplicação a partir de Template" `[RELATO PESSOAL]`                                                                                                                                   |
 | **Objetivos oficiais** | "Create an OpenShift template" · "Use pre-existing templates written in either JSON or YAML format" · "Work with multi-container templates" · "Add custom parameters to a template" `[OFICIAL]` |
 | **Projeto**            | `ex288-v3-t6` · `bash scripts/preparar-06.sh` · `validar-06.sh` · `limpar-06.sh`                                                                                                                |
 | **Pré-requisito**      | CRC; o E4 usa o Git interno (builds)                                                                                                                                                            |
