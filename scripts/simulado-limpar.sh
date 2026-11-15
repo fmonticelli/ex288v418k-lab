@@ -7,7 +7,7 @@ V="${1:-}"; case "$V" in A|B) ;; *) die "uso: simulado-limpar.sh A|B" ;; esac
 v="$(echo "$V" | tr 'A-Z' 'a-z')"; P="ex288-v3-s${v}-t"
 require_login
 delete_projects "$(sim_ns "$V" "1")" "$(sim_ns "$V" "2")" "$(sim_ns "$V" "3")" "$(sim_ns "$V" "4")" "$(sim_ns "$V" "5")" "$(sim_ns "$V" "6")" "$(sim_ns "$V" "7")" "$(sim_ns "$V" "8")"
-[ "$V" = B ] && delete_projects "$(sim_ns "$V" "4-shared")"
+if [ "$V" = B ]; then delete_projects "$(sim_ns "$V" "4-shared")"; fi
 
 # Sobras das solucoes na RAIZ do material (os blocos gravam no diretorio atual: A-T4 app.properties, B-T6 stack.yaml,
 # B-T7 values.yaml + pacote .tgz, B-T2 wd/ e o tarball do Nexus). Somente estes nomes, somente na raiz; nada de apps/ nem do resto.
