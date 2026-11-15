@@ -80,6 +80,8 @@ function draw(){
   const items=checkboxItems(part);$('checks').replaceChildren();
   items.forEach(item=>{const key=[state.mode,state.variant,part.id??idx,item.id].join(':');const row=document.createElement('div');row.className='item';const label=document.createElement('label');const cb=document.createElement('input');cb.type='checkbox';cb.checked=!!state.checks[key];cb.onchange=()=>{state.checks[key]=cb.checked;save();updateProgress();};const text=document.createElement('span');text.textContent=item.title;label.append(cb,text);row.append(label);$('checks').append(row);});
   $('validate').textContent=state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
+  $('cleanup').disabled=true;
+  namespaceSnapshot=[];
   updateProgress();setPage(state.page);refreshNamespaceStatus();
 }
 function updateProgress(){
@@ -97,8 +99,8 @@ async function refreshNamespaceStatus(){
   const params=new URLSearchParams({mode:state.mode});
   if(state.mode==='exam')params.set('variant',state.variant);
   else params.set('task',currentParts()[Number(state.selected)]?.id??'0');
-  $('cleanup').disabled=true;
-  $('cleanup').title='Consultando namespaces do OpenShift...';
+  // Mantem o estado atual durante o polling para evitar piscar/desabilitar o botao.
+  if(!$('cleanup').title)$('cleanup').title='Consultando namespaces do OpenShift...';
   try{
     const r=await fetch('/api/status?'+params);
     const d=await r.json();
