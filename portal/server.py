@@ -115,7 +115,7 @@ class Handler(BaseHTTPRequestHandler):
                 return self.send({"error": "Selecao invalida"}, 400)
             try:
                 found = namespace_status(names)
-                return self.send({"namespaces": found, "can_cleanup": any(x["managed"] for x in found)})
+                return self.send({"namespaces": found, "can_cleanup": bool(found)})
             except (RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
                 return self.send({"error": str(exc)}, 503)
         if url.path == "/api/tasks":
@@ -160,6 +160,22 @@ class Handler(BaseHTTPRequestHandler):
             args = (v,)
         else:
             return self.send({"error": "Operacao nao permitida"}, 400)
+        if action == "cleanup":
+            try:
+                found = namespace_status(target_names(data))
+            except (RuntimeError, subprocess.TimeoutExpired, ValueError) as exc:
+                return self.send({"error": "Nao foi possivel verificar namespaces: " + str(exc)}, 503)
+            unlabeled = [x["name"] for x in found if not x["managed"]]
+            if unlabeled:
+                # Namespace sem label: somente T0-T8, mediante confirmacao
+                # explicita com o nome exato. Simulados sem label nao sao adotados.
+                if mode != "task" or len(unlabeled) != 1 or data.get("adopt_namespace") != unlabeled[0]:
+                    return self.send({"error": "Namespace sem label do laboratorio: " + ", ".join(unlabeled) +
+                                      ". Confirme explicitamente a adocao do namespace."}, 409)
+                p = subprocess.run([os.environ.get("OC", "oc"), "label", "namespace", unlabeled[0],
+                                    "ex288-lab=v3", "--overwrite"], capture_output=True, text=True, timeout=20)
+                if p.returncode:
+                    return self.send({"error": "Falha ao identificar namespace do lab: " + p.stderr}, 409)
         if not LOCK.acquire(blocking=False):
             return self.send({"error": "Outra operacao esta em andamento"}, 409)
         try:
