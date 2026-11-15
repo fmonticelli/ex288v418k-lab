@@ -4,6 +4,7 @@ const store = 'ex288-portal-v1';
 let state = JSON.parse(localStorage.getItem(store) || '{}');
 state.page ||= 'activities'; state.grades ||= {}; state.mode ||= 'exam'; state.variant ||= 'A'; state.selected ||= '1'; state.checks ||= {}; state.started ||= Date.now();
 let tasks = [], examText = '';
+let operationBusy=false, statusSequence=0;
 const save = () => localStorage.setItem(store, JSON.stringify(state));
 function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function markdown(s){
@@ -70,7 +71,7 @@ function draw(){
   const items=checkboxItems(part);$('checks').replaceChildren();
   items.forEach(item=>{const key=[state.mode,state.variant,part.id??idx,item.id].join(':');const row=document.createElement('div');row.className='item';const label=document.createElement('label');const cb=document.createElement('input');cb.type='checkbox';cb.checked=!!state.checks[key];cb.onchange=()=>{state.checks[key]=cb.checked;save();updateProgress();};const text=document.createElement('span');text.textContent=item.title;label.append(cb,text);row.append(label);$('checks').append(row);});
   $('validate').textContent=state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
-  updateProgress();setPage(state.page);
+  updateProgress();setPage(state.page);refreshNamespaceStatus();
 }
 function updateProgress(){
   let total=0,done=0;currentParts().forEach((p,i)=>checkboxItems(p).forEach(item=>{total++;if(state.checks[[state.mode,state.variant,p.id??i,item.id].join(':')])done++;}));
@@ -80,6 +81,29 @@ async function load(){
   const r=await fetch('/api/tasks');tasks=(await r.json()).tasks;
   const e=await fetch('/api/exam?variant='+state.variant);examText=(await e.json()).markdown;
   draw();
+}
+async function refreshNamespaceStatus(){
+  const seq=++statusSequence;
+  if(operationBusy)return;
+  const params=new URLSearchParams({mode:state.mode});
+  if(state.mode==='exam')params.set('variant',state.variant);
+  else params.set('task',currentParts()[Number(state.selected)]?.id??'0');
+  $('cleanup').disabled=true;
+  $('cleanup').title='Consultando namespaces do OpenShift...';
+  try{
+    const r=await fetch('/api/status?'+params);
+    const d=await r.json();
+    if(seq!==statusSequence||operationBusy)return;
+    if(!r.ok)throw Error(d.error||'Erro na consulta');
+    const owned=d.namespaces.filter(n=>n.managed);
+    const foreign=d.namespaces.filter(n=>!n.managed);
+    $('cleanup').disabled=!d.can_cleanup;
+    $('cleanup').title=foreign.length?'Existem namespaces sem label do laboratório; limpeza poderá falhar: '+foreign.map(n=>n.name).join(', '):owned.length?'Remover: '+owned.map(n=>n.name).join(', '):'Nenhum namespace provisionado encontrado';
+  }catch(e){
+    if(seq!==statusSequence||operationBusy)return;
+    $('cleanup').disabled=true;
+    $('cleanup').title='Não foi possível consultar o cluster: '+String(e);
+  }
 }
 function operationStatus(type,title,message,details=false){
   const banner=$('operation-banner');
@@ -98,6 +122,7 @@ async function action(kind){
     const scope=state.mode==='exam'?'TODOS os namespaces do Simulado '+state.variant+' (incluindo o compartilhado, se houver)':'o namespace da tarefa selecionada';
     if(!confirm('Excluir '+scope+'? Esta operação remove os recursos do OpenShift e não pode ser desfeita. A infraestrutura Gitea/Nexus e a nota registrada serão preservadas.'))return;
   }
+  operationBusy=true;statusSequence++;
   buttons.forEach(b=>b.disabled=true);
   $('prepare').textContent=isPrepare?'Preparando...':'Preparar ambiente';
   $('validate').textContent=kind==='validate'?'Validando...':state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
@@ -128,7 +153,9 @@ async function action(kind){
     $('result').textContent=String(e);
     operationStatus('failure','Erro de comunicação','Não foi possível obter a resposta do servidor. Consulte os detalhes.',true);
   }finally{
+    operationBusy=false;
     buttons.forEach(b=>b.disabled=false);
+    refreshNamespaceStatus();
     $('prepare').textContent='Preparar ambiente';
     $('cleanup').textContent='Limpar ambiente';
     $('validate').textContent=state.mode==='exam'?'Validar simulado completo':'Validar tarefa';
@@ -140,4 +167,5 @@ $('variant').onchange=async e=>{state.variant=e.target.value;state.selected='0';
 $('prepare').onclick=()=>action('prepare');$('validate').onclick=()=>action('validate');$('cleanup').onclick=()=>action('cleanup');
 $('reset').onclick=()=>{if(confirm('Reiniciar cronômetro?')){state.started=Date.now();save();}};
 setInterval(()=>{const n=Math.floor((Date.now()-state.started)/1000);$('clock').textContent=[Math.floor(n/3600),Math.floor(n/60)%60,n%60].map(v=>String(v).padStart(2,'0')).join(':');},1000);
+setInterval(()=>{if(!operationBusy&&state.page==='activities')refreshNamespaceStatus();},15000);
 load().catch(e=>{$('title').textContent='Erro ao carregar enunciados';$('question').textContent=String(e);});
