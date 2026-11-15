@@ -7,7 +7,7 @@ V="${1:-}"; case "$V" in A|B) ;; *) die "uso: simulado-corrigir.sh A|B" ;; esac
 v="$(echo "$V" | tr 'A-Z' 'a-z')"; P="ex288-v3-s${v}-t"
 require_login
 GOT=0; TOT=0; TGOT=0; TTOT=0
-n1="${P}1"; n2="${P}2"; n3="${P}3"; n4="${P}4"; n5="${P}5"; n6="${P}6"; n7="${P}7"; n8="${P}8"
+n1="$(sim_ns "$V" "1")"; n2="$(sim_ns "$V" "2")"; n3="$(sim_ns "$V" "3")"; n4="$(sim_ns "$V" "4")"; n5="$(sim_ns "$V" "5")"; n6="$(sim_ns "$V" "6")"; n7="$(sim_ns "$V" "7")"; n8="$(sim_ns "$V" "8")"
 
 pts() {  # <pontos> <descricao> <funcao...>
   local n="$1" d="$2"; shift 2
@@ -73,7 +73,7 @@ b3b() { build_complete $n3 reports && [ "$(ready_replicas $n3 reports)" -ge 1 ];
 b3c() { route_has $n3 reports monorepo-api && route_has $n3 reports reports-b; }
 b4a() { [ "$(val $n4 cm shop-cfg '{.data.GREETING}')" = SimB ] && [ "$(val $n4 cm shop-cfg '{.data.LANG_CODE}')" = en-US ] && route_has $n4 cfgapp '"greeting":"SimB"' && route_has $n4 cfgapp '"lang":"en-US"'; }
 b4b() { [ "$(envk $n4 cfgapp DB_USER secretKeyRef.key)" = u ] && [ "$(envk $n4 cfgapp DB_PASSWORD secretKeyRef.key)" = p ] && route_has $n4 cfgapp '"dbUser":"shop"'; }
-b4c() { local a b; a="$(secret_val $n4 shop-token value)"; b="$(secret_val ${P}4-shared shop-token value)"; [ -n "$a" ] && [ "$a" = "$b" ] && route_has $n4 cfgapp '"hasToken":true'; }
+b4c() { local a b; a="$(secret_val $n4 shop-token value)"; b="$(secret_val $(sim_ns "$V" "4-shared") shop-token value)"; [ -n "$a" ] && [ "$a" = "$b" ] && route_has $n4 cfgapp '"hasToken":true'; }
 b5a() { [ "$(dep $n5 slowapp startupProbe.tcpSocket.port)" = 8080 ] && [ "$(dep $n5 slowapp readinessProbe.tcpSocket.port)" = 8080 ] && [ "$(budget $n5 slowapp startupProbe)" -ge 30 ]; }
 b5b() { [ -n "$(dep $n5 slowapp livenessProbe.exec.command)" ] && clean_pods $n5 slowapp; }
 b5c() { [ -n "$(dep $n5 slowbad livenessProbe)" ] && [ "$(budget $n5 slowbad startupProbe)" -ge 40 ] && clean_pods $n5 slowbad; }
