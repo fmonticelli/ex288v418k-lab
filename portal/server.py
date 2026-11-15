@@ -85,6 +85,8 @@ class Handler(BaseHTTPRequestHandler):
         if origin and origin not in (f"http://localhost:{PORT}", f"http://127.0.0.1:{PORT}"):
             return self.send({"error": "Origin nao autorizado"}, 403)
         url = urlparse(self.path)
+        if url.path != "/api/run":
+            return self.send({"error": "Nao encontrado"}, 404)
         length = int(self.headers.get("Content-Length", "0"))
         if length > 4096:
             return self.send({"error": "Requisicao muito grande"}, 413)
