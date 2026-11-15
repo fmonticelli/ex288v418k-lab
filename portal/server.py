@@ -50,7 +50,12 @@ def run_script(filename, args=()):
 
 class Handler(BaseHTTPRequestHandler):
     def send(self, data, status=200, content_type="application/json; charset=utf-8"):
-        body = data.encode() if isinstance(data, str) else json.dumps(data, ensure_ascii=False).encode()
+        if isinstance(data, bytes):
+            body = data
+        elif isinstance(data, str):
+            body = data.encode("utf-8")
+        else:
+            body = json.dumps(data, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", content_type)
         self.send_header("Content-Length", str(len(body)))
