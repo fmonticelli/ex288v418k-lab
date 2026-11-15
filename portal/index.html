@@ -52,6 +52,7 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline-color:#ee0
 .operation-banner[hidden]{display:none}.operation-banner{display:flex;align-items:center;gap:14px;padding:17px 20px;margin:0 0 22px;background:#fff;border:1px solid #d2d2d2;border-left:5px solid #0066cc;border-radius:4px}.operation-banner.running{border-left-color:#0066cc;background:#f0f7ff}.operation-banner.success{border-left-color:#3e8635;background:#f1faf0}.operation-banner.failure{border-left-color:#c9190b;background:#fff3f2}.operation-indicator{flex:none;width:15px;height:15px;border-radius:50%;border:3px solid #0066cc;border-top-color:transparent;animation:op-spin .8s linear infinite}.operation-banner.success .operation-indicator{animation:none;background:#3e8635;border-color:#3e8635}.operation-banner.failure .operation-indicator{animation:none;background:#c9190b;border-color:#c9190b}@keyframes op-spin{to{transform:rotate(360deg)}}.operation-copy{display:flex;flex-direction:column;gap:5px;flex:1;min-width:0}.operation-copy strong{font-size:14px}.operation-copy span{font-size:12px;color:#555;line-height:1.5}#operation-details{white-space:nowrap;background:transparent;border:1px solid #aaa}@media(max-width:720px){.operation-banner{flex-wrap:wrap}#operation-details{margin-left:29px}}
 .danger-action{color:#a30000;border-color:#c9190b;background:#fff}.danger-action:hover{color:#fff;background:#c9190b;border-color:#c9190b}
 .command-block{background:#151515;color:#f5f5f5;padding:15px 18px;overflow-x:auto;border-radius:4px;white-space:pre;font-size:12px;line-height:1.6}.command-block code{background:transparent!important;color:inherit!important;padding:0!important;font-size:inherit!important}
+.operation-banner{flex-wrap:wrap}.operation-output{flex-basis:100%;width:100%;overflow:hidden;max-height:0;opacity:0;transition:max-height .3s ease,opacity .25s ease}.operation-output[hidden]{display:none}.operation-output.expanded{max-height:650px;opacity:1}.operation-output #status{margin:12px 0}.operation-output #result{margin:0;max-height:550px;overflow:auto}#operation-details{cursor:pointer}
 </style>
 </head>
 <body>
@@ -72,14 +73,15 @@ button:focus-visible,select:focus-visible,input:focus-visible{outline-color:#ee0
   <div id="operation-banner" class="operation-banner" role="status" aria-live="polite" hidden>
     <div class="operation-indicator" id="operation-indicator"></div>
     <div class="operation-copy"><strong id="operation-title"></strong><span id="operation-message"></span></div>
-    <button id="operation-details" type="button" hidden>Ver detalhes</button>
+    <button id="operation-details" type="button" aria-expanded="false" aria-controls="operation-output" hidden>Ver detalhes ▾</button>
+    <div id="operation-output" class="operation-output" hidden><p id="status"></p><pre id="result"></pre></div>
   </div>
   <div class="notice"><span class="notice-mark">ⓘ</span><span>As marcações são apenas para acompanhamento pessoal. A avaliação verifica os recursos reais no OpenShift, independentemente de você usar CLI, console web ou manifests YAML.</span></div>
   <div class="content-grid">
     <section class="panel"><div class="panel-heading"><h3>Enunciado da atividade</h3><small>Requisitos</small></div><div id="question"></div></section>
     <section class="panel"><div class="panel-heading"><h3>Checklist de execução</h3><small>Controle pessoal</small></div><div id="checks"></div></section>
   </div>
-  <section class="panel" id="results" hidden><div class="panel-heading"><h3>Resultado da validação</h3><small>Cluster OpenShift</small></div><p id="status"></p><pre id="result"></pre></section></section>
+  </section>
 </article>
 </main><script src="/app.js"></script>
 </body></html>
