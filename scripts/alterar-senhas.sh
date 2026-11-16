@@ -4,7 +4,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 require_login
 N="$INFRA_NS"
-NEW_PASSWORD="${EX288_LAB_PASSWORD:-ex288}"
+NEW_PASSWORD="${EX288_LAB_PASSWORD:-ex288_2026}"
 [ -n "$NEW_PASSWORD" ] || die "senha vazia"
 exists "$N" secret gitea-admin || die "Secret gitea-admin nao encontrado"
 exists "$N" secret nexus-admin || die "Secret nexus-admin nao encontrado"
