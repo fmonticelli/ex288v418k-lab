@@ -27,11 +27,11 @@ fi
 if [ "${SKIP_GIT:-0}" != 1 ]; then
 echo "== 2/5 credenciais do Gitea e repositorios privados"
 if ! exists "$N" secret gitea-admin; then
-  GPW="${EX288_LAB_PASSWORD:-ex288}"
+  GPW="${EX288_LAB_PASSWORD:-ex288_2026}"
   oc create secret generic gitea-admin -n "$N" --from-literal=username=ex288 --from-literal=password="$GPW" >/dev/null
   oc label secret gitea-admin -n "$N" ex288-lab=v3 >/dev/null
 fi
-GU="$(git_user)"; GPW="${EX288_LAB_PASSWORD:-ex288}"; GH="$(gitea_host)"
+GU="$(git_user)"; GPW="${EX288_LAB_PASSWORD:-ex288_2026}"; GH="$(gitea_host)"
 # Reconcilia usuarios ja criados sem apagar repositorios.
 oc exec -n "$N" deploy/gitea -- gitea admin user change-password --username "$GU" --password "$GPW" --must-change-password=false >/dev/null 2>&1 || true
 oc create secret generic gitea-admin -n "$N" --from-literal=username="$GU" --from-literal=password="$GPW" --dry-run=client -o yaml | oc apply -f - >/dev/null
