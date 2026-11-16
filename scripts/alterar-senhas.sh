@@ -13,7 +13,7 @@ GU="$(git_user)"
 [ "$GU" = ex288 ] || die "usuario Gitea inesperado: $GU"
 echo "== Atualizando senha do Gitea"
 oc exec -n "$N" deploy/gitea -- gitea admin user change-password \
-  --username "$GU" --password "$NEW_PASSWORD" >/dev/null \
+  --username "$GU" --password "$NEW_PASSWORD" --must-change-password=false >/dev/null \
   || die "nao foi possivel trocar a senha no Gitea"
 oc create secret generic gitea-admin -n "$N" \
   --from-literal=username="$GU" --from-literal=password="$NEW_PASSWORD" \
