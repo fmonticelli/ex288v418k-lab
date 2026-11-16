@@ -33,7 +33,7 @@ if ! exists "$N" secret gitea-admin; then
 fi
 GU="$(git_user)"; GPW="${EX288_LAB_PASSWORD:-ex288}"; GH="$(gitea_host)"
 # Reconcilia usuarios ja criados sem apagar repositorios.
-oc exec -n "$N" deploy/gitea -- gitea admin user change-password --username "$GU" --password "$GPW" >/dev/null 2>&1 || true
+oc exec -n "$N" deploy/gitea -- gitea admin user change-password --username "$GU" --password "$GPW" --must-change-password=false >/dev/null 2>&1 || true
 oc create secret generic gitea-admin -n "$N" --from-literal=username="$GU" --from-literal=password="$GPW" --dry-run=client -o yaml | oc apply -f - >/dev/null
 # o banco do Gitea e emptyDir: recria o usuario sempre que o pod foi recriado (erro "already exists" e ignorado)
 oc exec -n "$N" deploy/gitea -- gitea admin user create --username "$GU" --password "$GPW" \
