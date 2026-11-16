@@ -81,14 +81,14 @@ i=0; until [ "$(nx /service/rest/v1/status -o /dev/null -w '%{http_code}')" = 20
 done
 if exists "$N" secret nexus-admin; then
   NPW="$(nexus_pass)"
-  TARGET_PW="${EX288_LAB_PASSWORD:-ex288}"
+  TARGET_PW="${EX288_NEXUS_PASSWORD:-ex288_2026}"
   if [ "$NPW" != "$TARGET_PW" ]; then
     [ "$(nx /service/rest/v1/security/users/admin/change-password -u "admin:$NPW" -X PUT -H "Content-Type: text/plain" -d "$TARGET_PW" -o /dev/null -w "%{http_code}")" = 204 ] || die "nao consegui atualizar a senha existente do Nexus"
     NPW="$TARGET_PW"
     oc create secret generic nexus-admin -n "$N" --from-literal=username=admin --from-literal=password="$NPW" --dry-run=client -o yaml | oc apply -f - >/dev/null
   fi
 else
-  NPW="${EX288_LAB_PASSWORD:-ex288}"
+  NPW="${EX288_NEXUS_PASSWORD:-ex288_2026}"
   [ "$(nx /service/rest/v1/security/users/admin/change-password -u admin:admin123 -X PUT -H 'Content-Type: text/plain' -d "$NPW" -o /dev/null -w '%{http_code}')" = 204 ] \
     || die "nao consegui trocar a senha inicial do admin do Nexus (ja trocada em outro run? apague o Secret e o pod)"
   oc create secret generic nexus-admin -n "$N" --from-literal=username=admin --from-literal=password="$NPW" >/dev/null
