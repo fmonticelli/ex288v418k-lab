@@ -12,21 +12,23 @@ bash starta-portal.sh
 
 O script atualiza a branch atual com `git pull --ff-only`, verifica o login `oc`, configura `ROUTE_IP` automaticamente quando `crc` estiver disponível e inicia o servidor. Para iniciar sem atualizar o Git, use `bash starta-portal.sh --no-update`. Pare com `Ctrl+C`. Caso prefira iniciar manualmente, execute `python3 portal/server.py` após configurar o ambiente.
 
-Abra **http://127.0.0.1:8765** na mesma máquina. Não precisa instalar bibliotecas Python, Node ou dependências frontend. `EX288_PORT=8766 python3 portal/server.py` troca a porta.
+Abra **http://127.0.0.1:8765** na mesma máquina ou **http://IP-DA-MÁQUINA:8765** a partir de outra. Não precisa instalar bibliotecas Python, Node ou dependências frontend. `EX288_PORT=8766 python3 portal/server.py` troca a porta.
 
 1. Escolha **Simulado completo** A ou B.
 2. Clique **Preparar ambiente** (executa `scripts/simulado-preparar.sh A|B`).
 3. Resolva as questões no OpenShift, pelo console ou `oc`.
-4. Marque os checkboxes como lembretes pessoais.
+4. Marque os checkboxes como lembretes pessoais. O tempo de 3 horas começa a contar quando a preparação termina (ou pelo botão ▶ no topo) e a faixa abaixo do cabeçalho mostra o tempo restante.
 5. Clique **Validar simulado completo**. A correção usa `scripts/simulado-corrigir.sh A|B` e exibe a pontuação real.
-6. Para treino individual, escolha **Treino por tarefa** e use **Preparar ambiente** / **Validar tarefa**.
+6. Para treino individual, escolha **Tarefas** e use **Preparar ambiente** / **Validar tarefa**. Cada tarefa tem um cronômetro progressivo próprio, sem limite de tempo.
 
 ## Segurança e limites
 
-- O servidor **escuta somente em 127.0.0.1**. Não publique em Route ou `0.0.0.0` sem autenticação, RBAC e proteção CSRF apropriados.
+- O servidor **escuta em todas as interfaces (`0.0.0.0`)** por padrão. Para restringir à máquina local: `EX288_HOST=127.0.0.1 python3 portal/server.py`.
+- Só são aceitas requisições cujo `Host` seja `localhost`, `127.0.0.1`, o hostname ou um IP da máquina (proteção contra DNS rebinding); o POST exige `Origin` igual ao `Host` (proteção CSRF). Nomes/IPs extras (DNS, NAT, VM): `EX288_ALLOWED_HOSTS=nome.lab,10.0.0.5`.
+- **Não há autenticação**: qualquer um que alcance a porta pode preparar, validar e limpar namespaces com o login `oc` desta workstation. Restrinja a porta no firewall a redes confiáveis e não publique em Route.
 - Não pede nem armazena senha do OpenShift. Os subprocessos herdam o `KUBECONFIG` e `PATH` locais. A conta logada precisa de permissões adequadas para preparar e corrigir o lab.
 - Não executa comandos arbitrários enviados pelo navegador: somente os scripts permitidos com parâmetros enumerados.
-- Checkboxes e relógio persistem em `localStorage` **deste navegador**; não alteram a nota. O cronômetro não encerra automaticamente a prova.
+- Checkboxes, cronômetros e notas ficam no `localStorage` **deste navegador** e não alteram a nota. No simulado, o cronômetro é regressivo (3 h), pausa ao registrar a nota e para em 0:00:00 com um aviso, sem bloquear a validação.
 - **Preparar** pode criar/alterar recursos do simulado. Use conscientemente e não reinicie a preparação no meio da prova.
 - O backend só lê enunciados, nunca serve `solucao.md`.
 - A validação existente pode ser mais restritiva do que equivalência funcional: este portal **não reescreve** os validadores do Pedro.

@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import socket
 import subprocess
 import time
 import threading
@@ -12,8 +13,30 @@ from urllib.parse import urlparse, parse_qs
 
 ROOT = Path(__file__).resolve().parent.parent
 PORTAL = Path(__file__).resolve().parent
-HOST = "127.0.0.1"
+HOST = os.environ.get("EX288_HOST", "0.0.0.0")
 PORT = int(os.environ.get("EX288_PORT", "8765"))
+# Nomes/IPs pelos quais o portal pode ser acessado (protege contra DNS rebinding).
+def local_addresses():
+    names = {"localhost", "127.0.0.1", socket.gethostname(), socket.getfqdn()}
+    try:
+        names |= set(socket.gethostbyname_ex(socket.gethostname())[2])
+    except OSError:
+        pass
+    try:  # todos os IPs das interfaces (Linux)
+        p = subprocess.run(["hostname", "-I"], capture_output=True, text=True, timeout=5)
+        names |= set(p.stdout.split())
+    except (OSError, subprocess.TimeoutExpired):
+        pass
+    try:  # IP da rota padrao (nao envia pacotes)
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as s:
+            s.connect(("192.0.2.1", 80))
+            names.add(s.getsockname()[0])
+    except OSError:
+        pass
+    return {n for n in names if n and ":" not in n}  # IPv6 fora por ora
+
+ALLOWED_HOSTS = local_addresses()
+ALLOWED_HOSTS |= {h.strip() for h in os.environ.get("EX288_ALLOWED_HOSTS", "").split(",") if h.strip()}
 LOCK = threading.Lock()
 TASKS = {
     "0": ("Imagem pronta", "11-simulado-418/00-imagem.md", "00-imagem"),
@@ -102,7 +125,13 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Security-Policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'")
         self.end_headers()
         self.wfile.write(body)
+    def host_ok(self):
+        host = self.headers.get("Host", "")
+        name = host.rsplit(":", 1)[0] if ":" in host else host
+        return name in ALLOWED_HOSTS
     def do_GET(self):
+        if not self.host_ok():
+            return self.send({"error": "Host nao autorizado"}, 403)
         url = urlparse(self.path)
         if url.path in ("/", "/index.html"):
             return self.send((PORTAL / "index.html").read_bytes(), content_type="text/html; charset=utf-8")
@@ -133,9 +162,11 @@ class Handler(BaseHTTPRequestHandler):
             return self.send({"variant": variant, "markdown": md})
         self.send({"error": "Nao encontrado"}, 404)
     def do_POST(self):
-        # Acesso apenas loopback e bloqueio basico de requisicoes cross-origin.
+        # Host na lista permitida e Origin igual ao proprio Host (bloqueio cross-origin).
+        if not self.host_ok():
+            return self.send({"error": "Host nao autorizado"}, 403)
         origin = self.headers.get("Origin", "")
-        if origin and origin not in (f"http://localhost:{PORT}", f"http://127.0.0.1:{PORT}"):
+        if origin and origin != f"http://{self.headers.get('Host', '')}":
             return self.send({"error": "Origin nao autorizado"}, 403)
         url = urlparse(self.path)
         if url.path != "/api/run":
@@ -181,5 +212,5 @@ class Handler(BaseHTTPRequestHandler):
             LOCK.release()
 
 if __name__ == "__main__":
-    print(f"EX288 portal: http://{HOST}:{PORT} (somente localhost)", flush=True)
+    print(f"EX288 portal: http://{HOST}:{PORT} (hosts aceitos: {', '.join(sorted(ALLOWED_HOSTS))})", flush=True)
     ThreadingHTTPServer((HOST, PORT), Handler).serve_forever()
