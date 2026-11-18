@@ -28,6 +28,7 @@ spec:
           env:
             - {name: HOME, value: /var/lib/gitea/home}
             - {name: GITEA__security__INSTALL_LOCK, value: "true"}
+            - {name: GITEA__security__MIN_PASSWORD_LENGTH, value: "5"}
             - {name: GITEA__database__DB_TYPE, value: sqlite3}
             - {name: GITEA__server__HTTP_PORT, value: "3000"}
             - {name: GITEA__server__DISABLE_SSH, value: "true"}

@@ -4,7 +4,7 @@
 
 |                        |                                                                                                                                                                |
 | ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Task relatada**      | "Configuração por variáveis de ambiente: criar um ConfigMap e usar um Secret que já existe no cluster" `[RELATO PESSOAL]`                                      |
+| **Objetivo do laboratório**      | "Configuração por variáveis de ambiente: criar um ConfigMap e usar um Secret que já existe no cluster" `[RELATO PESSOAL]`                                      |
 | **Objetivos oficiais** | "Create configuration maps" · "Create secret resources" · "Use configuration maps to inject data into applications" `[OFICIAL]`                                |
 | **Projetos**           | `ex288-v3-t4` (app e Secret existente) e `ex288-v3-t4-shared` (Secret em **outro** projeto) · `bash scripts/preparar-04.sh` · `validar-04.sh` · `limpar-04.sh` |
 | **Pré-requisito**      | só o CRC (não usa Git nem Nexus; credenciais do Nexus em Secret é outra variação, ver T2/T3)                                                                   |

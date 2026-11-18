@@ -23,8 +23,38 @@ oc() {
 
 die() { echo "FAIL: $*" >&2; exit 2; }
 
+sim_ns() {
+  case "${1^^}:$2" in
+    A:1) echo crimson ;;
+    A:2) echo quartz ;;
+    A:3) echo ember ;;
+    A:4) echo harbor ;;
+    A:5) echo cobalt ;;
+    A:6) echo willow ;;
+    A:7) echo falcon ;;
+    A:8) echo tundra ;;
+    B:1) echo onyx ;;
+    B:2) echo cedar ;;
+    B:3) echo glacier ;;
+    B:4) echo copper ;;
+    B:5) echo violet ;;
+    B:6) echo lantern ;;
+    B:7) echo summit ;;
+    B:8) echo orchard ;;
+    B:4-shared) echo copper-shared ;;
+    *) die "namespace de simulado invalido: $1/$2" ;;
+  esac
+}
 assert_v3_ns() {
-  case "$1" in "${V3_PREFIX}"*) ;; *) die "recusado: '$1' nao tem o prefixo ${V3_PREFIX}" ;; esac
+  case "$1" in "${V3_PREFIX}"*|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared) ;; *) die "namespace nao autorizado: $1" ;; esac
+}
+
+# Exclusao limitada aos nomes exatos das tarefas e simulados; nunca a infra.
+assert_lab_task_ns() {
+  case "$1" in
+    ex288-v3-t[0-8]|ex288-v3-t4-shared|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared) ;;
+    *) die "projeto fora da lista de tarefas do laboratorio: $1" ;;
+  esac
 }
 
 require_login() {
@@ -46,14 +76,14 @@ new_project() {  # <nome completo ex288-v3-*>
   if ! oc get project "$ns" >/dev/null 2>&1; then
     printf 'apiVersion: project.openshift.io/v1\nkind: ProjectRequest\nmetadata:\n  name: %s\ndisplayName: %s\n' "$ns" "$ns" | oc create -f - >/dev/null
   fi
-  oc label namespace "$ns" ex288-lab=v3 --overwrite >/dev/null 2>&1 || true
 }
 
 delete_projects() {  # <ns>... ; so remove ex288-v3-* ; nunca a infra a menos que pedido explicitamente
   local n
   for n in "$@"; do
-    assert_v3_ns "$n"
-    if oc get project "$n" >/dev/null 2>&1; then echo "removendo projeto $n"; oc delete project "$n" --wait=false >/dev/null; else echo "(nao existe) $n"; fi
+    assert_lab_task_ns "$n"
+    if oc get project "$n" >/dev/null 2>&1; then
+      echo "removendo projeto $n"; oc delete project "$n" --wait=false >/dev/null; else echo "(nao existe) $n"; fi
   done
 }
 

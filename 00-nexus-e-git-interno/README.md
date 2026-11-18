@@ -1,8 +1,8 @@
 [← mapa das 8 tasks](../00-guia/mapa-8-tasks.md) | [índice](../README.md)
 
-# Git interno e Nexus — como usar (a lacuna que o relato apontou)
+# Git interno e Nexus — infraestrutura de apoio
 
-> Relato: o ambiente da prova fornece um **servidor Git** e um **repositório de artefatos Nexus**; o Nexus apareceu "em algumas tasks" e pegou o seu amigo de surpresa `[RELATO PESSOAL]`. Não há relato público sobre isso. O courseware DO288 também usa um Nexus de sala (mirror Maven/npm), o que é indício `[OFICIAL]` de que ele existe no ecossistema de treinamento. **O uso exato na prova é `HIPÓTESE`**: o que segue cobre os usos plausíveis.
+> Este laboratório utiliza Gitea para hospedar repositórios Git privados e Nexus para disponibilizar dependências, pacotes e charts. Esses serviços permitem praticar builds e deploys em cenários com autenticação e repositórios internos.
 
 ## O lab (como foi desenhado)
 
@@ -11,7 +11,7 @@
 | Git interno | Gitea 1.27.3 (rootless, MIT) | `ex288-v3-infra`, rota `gitea-ex288-v3-infra.apps-crc.testing` | 5 repositórios **privados** (`webapp` com branches `main`/`dev`, `monorepo`, `webapp-docker`, `webapp-s2i`, `httpd-ex`); autenticação básica |
 | Nexus | `sonatype/nexus3:3.96.5-ubi` (Community) | `ex288-v3-infra`, rota `nexus-ex288-v3-infra.apps-crc.testing` | repositórios `npm-proxy`/`npm-public`, `maven-proxy`/`maven-hosted`/`maven-public`, `helm-hosted`, `raw-hosted`, `docker-hosted` (:5000) |
 | Subir tudo | `bash scripts/infra-up.sh` (idempotente) **logado como `developer`** — o mesmo usuário dos exercícios; criado por `kubeadmin`, o projeto fica invisível ao `developer` (`VERIFICADO`) | — | requer o CRC com disco/memória suficientes ([pré-requisitos §13](../00-guia/preparar-wsl-rhel.md#13-capacidade-do-crc-decisão-pendente)) |
-| Credenciais | `bash scripts/credenciais.sh --show` | Secrets `gitea-admin` e `nexus-admin` | senhas **geradas**, só no Secret; nunca em arquivo |
+| Credenciais | `bash scripts/credenciais.sh --show` | Secrets `gitea-admin` e `nexus-admin` | senha padrão fixa de treinamento `Ex288Lab2026!`, armazenada nos Secrets do cluster; pode ser alterada via `EX288_LAB_PASSWORD` |
 
 > [!WARNING]
 > **Status final (`VERIFICADO` no CRC 4.22.14 ampliado: 6 CPUs / 16 GiB / 64 GiB):** Gitea e Nexus rodam juntos (`1/1 Running`, `BestEffort`); o EULA foi **aceito por você** (POST → HTTP 204) e `infra-up.sh` carregou os charts `ex288-hello` 0.1.0 e 0.2.0 (`helm-hosted`, HTTP 200), o artefato `ex288/site-1.0.tar.gz` (`raw-hosted`, 201) e o JAR/POM de teste (`maven-hosted`, 201). Acesso anônimo: `npm-public` 200; `helm-hosted` e `raw-hosted` 401 (como desenhado). O proxy npm cacheia o `ms` e a busca `…/search?repository=npm-proxy&name=ms` o encontra. Usado de verdade em T2 (ARG e artefato), T3 (`npm_config_registry`), T7 (`helm repo add`) e nos simulados.

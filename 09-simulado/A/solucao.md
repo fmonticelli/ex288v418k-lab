@@ -16,8 +16,8 @@ GIT=http://<host-do-git>/ex288 ; NEXUS=http://<host-do-nexus> ; NEXUS_PASS=<senh
 
 ```bash
 oc create secret generic git-creds --type=kubernetes.io/basic-auth \
-  --from-literal=username="$GIT_USER" --from-literal=password="$GIT_PASS" -n ex288-v3-sa-t1   # idem para ...-sa-t2 e ...-sa-t3
-oc get secret git-creds -n ex288-v3-sa-t1 -o jsonpath='{.type}'                              # kubernetes.io/basic-auth
+  --from-literal=username="$GIT_USER" --from-literal=password="$GIT_PASS" -n crimson   # idem para ...-sa-t2 e ...-sa-t3
+oc get secret git-creds -n crimson -o jsonpath='{.type}'                              # kubernetes.io/basic-auth
 ```
 
 Ele só serve ao **build** (o pod de build clona de novo com ele, via `--source-secret git-creds` ou `oc set build-secret --source bc/NOME git-creds`). Na T8 o Tekton usa outro Secret, `git-basic-auth`, com a anotação `tekton.dev/git-0` (veja a [solução da T8](../../08-cicd-pipelines/solucao.md)).
@@ -31,7 +31,7 @@ git ls-remote "$GIT/webapp.git"               # digite usuário e senha uma vez;
 
 `VERIFICADO` no seu WSL: sem credencial, o `git ls-remote` falha (rc 128); com o helper `cache` e a credencial digitada uma vez, o `oc new-app` do T1 abaixo criou o BuildConfig com `sourceSecret: git-creds` e `ref: dev`, e o build terminou `Complete`. O cache dura 3600 s: se o `oc new-app` voltar a falhar em um repositório privado depois de uma hora, repita o `git ls-remote`.
 
-**T1** (`-n ex288-v3-sa-t1`)
+**T1** (`-n crimson`)
 ```bash
 oc new-app --name portal --source-secret git-creds -l tier=web -e APP_MESSAGE=sim-a --image-stream openshift/nodejs:20-ubi9 --code "$GIT/webapp.git#dev"
 oc expose service portal ; oc create route edge portal-tls --service=portal --insecure-policy=Redirect
@@ -81,12 +81,12 @@ oc new-app --template=webapp-template -p NAME=orders-dev -p MESSAGE=dev -l env=d
 **T7**
 ```bash
 helm repo add nexus "$NEXUS/repository/helm-hosted/" --username admin --password "$NEXUS_PASS" ; helm repo update
-helm install inventory nexus/ex288-hello --version 0.1.0 -n ex288-v3-sa-t7
-helm upgrade inventory nexus/ex288-hello --version 0.2.0 --set replicaCount=2 -n ex288-v3-sa-t7
+helm install inventory nexus/ex288-hello --version 0.1.0 -n falcon
+helm upgrade inventory nexus/ex288-hello --version 0.2.0 --set replicaCount=2 -n falcon
 ```
-**T8** (`-n ex288-v3-sa-t8`; **os nomes do enunciado são exatos**: `sim-ci`, `sim-build`, `simapp` — o corretor não reconhece `mini-ci` nem `build-and-deploy`). `VALIDADO NO CLUSTER` (16/16).
+**T8** (`-n tundra`; **os nomes do enunciado são exatos**: `sim-ci`, `sim-build`, `simapp` — o corretor não reconhece `mini-ci` nem `build-and-deploy`). `VALIDADO NO CLUSTER` (16/16).
 ```bash
-NS=ex288-v3-sa-t8
+NS=tundra
 # 1) sim-ci: 3 tasks encadeadas por runAfter, taskSpec embutido, parametro TARGET
 cat <<'EOF' | oc create -f -
 apiVersion: tekton.dev/v1
