@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: shared-pvc
+spec:
+  accessModes: [ReadWriteOnce]
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: reforco-ci
+spec:
+  params:
+  - name: MESSAGE
+    type: string
+  workspaces:
+  - name: shared
+  tasks:
+  - name: write
+    params:
+    - name: MESSAGE
+      value: $(params.MESSAGE)
+    workspaces:
+    - name: data
+      workspace: shared
+    taskSpec:
+      params:
+      - name: MESSAGE
+        type: string
+      workspaces:
+      - name: data
+      steps:
+      - name: write
+        image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+        env:
+        - name: MESSAGE
+          value: $(params.MESSAGE)
+        script: |
+          #!/bin/sh
+          set -eu
+          printf '%s\n' "$MESSAGE" > "$(workspaces.data.path)/message.txt"
+  - name: verify
+    runAfter: [write]
+    workspaces:
+    - name: data
+      workspace: shared
+    taskSpec:
+      workspaces:
+      - name: data
+      steps:
+      - name: verify
+        image: registry.access.redhat.com/ubi9/ubi-minimal:latest
+        script: |
+          #!/bin/sh
+          set -eu
+          cat "$(workspaces.data.path)/messages.txt"

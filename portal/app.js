@@ -4,6 +4,7 @@
 const $ = id => document.getElementById(id);
 const STORE = 'ex288-portal-v2';
 const EXAM_MS = 3 * 60 * 60 * 1000;
+const examDuration = () => state.variant === 'R' ? 115 * 60 * 1000 : EXAM_MS;
 const WARN_MS = 30 * 60 * 1000;
 const CRITICAL_MS = 10 * 60 * 1000;
 
@@ -26,7 +27,7 @@ function loadState() {
   }
   s.page ||= 'activities';
   s.mode = s.mode === 'task' ? 'task' : 'exam';
-  s.variant = s.variant === 'B' ? 'B' : 'A';
+  s.variant = ['A','B','R'].includes(s.variant) ? s.variant : 'A';
   s.sel ||= { exam: { A: 0, B: 0 }, task: 0 };
   s.checks ||= {};
   s.grades ||= {};
@@ -161,7 +162,7 @@ function currentTimer() {
 const elapsed = t => t.acc + (t.since ? Date.now() - t.since : 0);
 function startTimer(t = currentTimer()) {
   if (t.since) return;
-  if (state.mode === 'exam' && elapsed(t) >= EXAM_MS) return;
+  if (state.mode === 'exam' && elapsed(t) >= examDuration()) return;
   t.since = Date.now(); save(); renderTimer();
 }
 function pauseTimer(t = currentTimer()) {
@@ -180,8 +181,8 @@ function renderTimer() {
   box.className = 'timer';
   bar.className = 'timebar';
   if (state.mode === 'exam') {
-    let remaining = EXAM_MS - el;
-    if (remaining <= 0 && t.since) { t.acc = EXAM_MS; t.since = null; remaining = 0; save(); onExpired(); }
+    let remaining = examDuration() - el;
+    if (remaining <= 0 && t.since) { t.acc = examDuration(); t.since = null; remaining = 0; save(); onExpired(); }
     $('timer-value').textContent = fmt(remaining);
     $('timer-label').textContent = remaining <= 0 ? 'Tempo esgotado' : running ? 'Tempo restante' : el ? 'Prova pausada' : 'Duração da prova';
     if (remaining <= 0) box.classList.add('over');
@@ -189,7 +190,7 @@ function renderTimer() {
     else if (remaining <= WARN_MS) box.classList.add('warn');
     if (!el) bar.classList.add('idle');
     else if (remaining <= WARN_MS) bar.classList.add('warn');
-    fill.style.transform = `scaleX(${Math.max(0, remaining) / EXAM_MS})`;
+    fill.style.transform = `scaleX(${Math.max(0, remaining) / examDuration()})`;
     document.title = running ? fmt(remaining) + ' restantes | EX288 Lab Console' : 'EX288 Lab Console';
   } else {
     $('timer-value').textContent = fmt(el);
@@ -198,7 +199,7 @@ function renderTimer() {
     fill.style.transform = 'scaleX(1)';
     document.title = 'EX288 Lab Console';
   }
-  const expired = state.mode === 'exam' && el >= EXAM_MS;
+  const expired = state.mode === 'exam' && el >= examDuration();
   const tg = $('timer-toggle');
   tg.disabled = expired;
   tg.innerHTML = `<svg><use href="#i-${running ? 'pause' : 'play'}"/></svg>`;
@@ -206,7 +207,7 @@ function renderTimer() {
   tg.title = verb; tg.setAttribute('aria-label', verb + ' cronômetro');
 }
 function onExpired() {
-  showAlert('warning', 'Tempo esgotado', 'As 3 horas do simulado acabaram. Valide o simulado para registrar a nota.');
+  showAlert('warning', 'Tempo esgotado', 'O tempo do treino acabou. Valide para registrar o resultado.');
 }
 
 /* ---------- Diálogo de confirmação ---------- */
@@ -323,29 +324,33 @@ function renderProgress(part, idx) {
 
 function renderGrade() {
   const g = state.grades[state.variant];
-  $('grade-value').innerHTML = (g ? g.score : '—') + '<small> / 300</small>';
+  const reinforcement = state.variant === 'R';
+  $('grade-value').innerHTML = reinforcement ? (g ? g.earned + '<small> / ' + g.possible + '</small>' : '—') : (g ? g.score : '—') + '<small> / 300</small>';
   $('grade-points').textContent = g && g.possible ? g.earned + ' de ' + g.possible : '—';
   $('grade-time').textContent = g && g.timeUsed != null ? fmt(g.timeUsed) : '—';
   const v = $('grade-verdict');
-  v.textContent = g ? (g.score >= 210 ? 'Acima da referência de aprovação' : 'Abaixo da referência de aprovação') : 'Ainda não validado';
+  v.textContent = g ? (reinforcement ? 'Itens aprovados (sem equivalência com nota oficial)' : g.score >= 210 ? 'Acima da referência de aprovação' : 'Abaixo da referência de aprovação') : 'Ainda não validado';
   v.className = 'verdict' + (g ? (g.score >= 210 ? ' pass' : ' fail') : '');
   $('grade-bar').style.width = (g ? g.score / 3 : 0) + '%';
-  $('grade-bar').className = 'scale-fill' + (g && g.score >= 210 ? ' pass' : '');
+  $('grade-bar').className = 'scale-fill' + (g && !reinforcement && g.score >= 210 ? ' pass' : '');
+  document.querySelector('.scale-mark').hidden = reinforcement;
+  v.className = reinforcement ? 'verdict' : v.className;
   $('grade-details').textContent = g ? g.output : 'Nenhuma correção registrada para a variante ' + state.variant + '. Valide o simulado para ver a nota aqui.';
   $('grade-when').textContent = g && g.at ? new Date(g.at).toLocaleString('pt-BR') : '';
 }
 
 function recordGrade(output) {
   const m = output.match(/TOTAL:\s*(\d+)\s*\/\s*(\d+)/);
-  if (!m) return false;
-  const earned = Number(m[1]), possible = Number(m[2]);
+  const r = state.variant === 'R' ? output.match(/\[reforco\]\s*(\d+) PASS \/ (\d+) FAIL/) : null;
+  if (!m && !r) return false;
+  const earned = r ? Number(r[1]) : Number(m[1]), possible = r ? earned + Number(r[2]) : Number(m[2]);
   if (!possible) return false;
   const t = currentTimer();
   pauseTimer(t);
   const used = elapsed(t);
   state.grades[state.variant] = {
     score: Math.max(0, Math.min(300, Math.round(earned / possible * 300))),
-    earned, possible, output, at: Date.now(), timeUsed: used ? Math.min(used, EXAM_MS) : null,
+    earned, possible, output, at: Date.now(), timeUsed: used ? Math.min(used, examDuration()) : null,
   };
   save();
   return true;
@@ -427,7 +432,7 @@ async function action(kind) {
     const log = (d.output ?? d.error ?? '') + (d.code != null ? `\n\n[exit ${d.code}]` : '');
     if (ok) {
       let msg = 'Script finalizado sem erros.';
-      if (kind === 'prepare') { startTimer(); msg = exam ? 'O tempo de 3 horas começou a contar.' : 'O cronômetro da tarefa começou.'; }
+      if (kind === 'prepare') { startTimer(); msg = exam ? 'O cronômetro regressivo começou.' : 'O cronômetro da tarefa começou.'; }
       if (kind === 'validate' && exam && recordGrade(d.output || '')) {
         msg = 'Nota registrada e cronômetro pausado. Veja o resultado em Nota final.';
         state.page = 'grade'; save();
@@ -477,7 +482,7 @@ $('op-toggle').onclick = () => toggleLog($('op-output').hidden);
 $('timer-toggle').onclick = () => { const t = currentTimer(); t.since ? pauseTimer(t) : startTimer(t); };
 $('timer-reset').onclick = async () => {
   const exam = state.mode === 'exam';
-  const ok = await confirmDialog('Reiniciar cronômetro?', exam ? `O tempo do simulado ${state.variant} volta para 3:00:00.` : 'O tempo desta tarefa volta para zero.', 'Reiniciar');
+  const ok = await confirmDialog('Reiniciar cronômetro?', exam ? `O tempo volta para ${fmt(examDuration())}.` : 'O tempo desta tarefa volta para zero.', 'Reiniciar');
   if (!ok) return;
   const t = currentTimer(); t.acc = 0; t.since = null; save(); renderTimer();
 };

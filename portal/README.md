@@ -38,3 +38,7 @@ Abra **http://127.0.0.1:8765** na mesma máquina ou **http://IP-DA-MÁQUINA:8765
 ## Diagnóstico
 
 Se a correção falhar, execute o mesmo script diretamente no terminal. Para HTTPS/DNS no CRC, configure `ROUTE_IP="$(crc ip)"` antes de iniciar o portal.
+
+## Reforço final
+
+Em Simulado, selecione **Reforço final**. O portal apresenta R1–R5, prepara os cinco namespaces, inicia o cronômetro de 1h55 e valida o conjunto. O resultado é a contagem de itens PASS/FAIL, não uma nota oficial. Confira os arquivos values e os logs Tekton manualmente. A limpeza remove somente ex288-v3-r1 a r5.

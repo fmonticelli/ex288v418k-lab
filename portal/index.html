@@ -261,6 +261,7 @@ dialog::backdrop{background:#151515a6}
       <div class="segmented variant-row" id="variant-group" role="group" aria-label="Variante do simulado">
         <button data-variant="A" aria-pressed="true">Variante A</button>
         <button data-variant="B" aria-pressed="false">Variante B</button>
+        <button data-variant="R" aria-pressed="false">Reforço final</button>
       </div>
     </div>
     <ul class="nav-list" id="pages">
@@ -337,7 +338,7 @@ dialog::backdrop{background:#151515a6}
             <li>Inicie o CRC e entre com <code>oc login</code>.</li>
             <li>Confira <code>oc whoami</code> e <code>oc get pods -n ex288-v3-infra</code>.</li>
             <li>Se algum serviço faltar, rode <code>bash scripts/infra-up.sh</code>.</li>
-            <li>Escolha o modo e a variante no menu e clique em <b>Preparar ambiente</b>. No simulado, o tempo de 3 horas começa a contar quando a preparação termina.</li>
+            <li>Escolha o modo e a variante no menu e clique em <b>Preparar ambiente</b>. O cronômetro começa quando a preparação termina (3 horas em A/B; 1h55 no reforço).</li>
             <li>Resolva as questões no OpenShift.</li>
             <li>Clique em <b>Validar simulado</b> e confira a nota final.</li>
           </ol>

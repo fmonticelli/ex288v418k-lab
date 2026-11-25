@@ -50,6 +50,7 @@ TASKS = {
     "8": ("CI/CD", "08-cicd-pipelines/exercicios.md", "08"),
 }
 SIM_NS = {
+    "R": tuple(f"ex288-v3-r{i}" for i in range(1, 6)),
     "A": ("crimson", "quartz", "ember", "harbor", "cobalt", "willow", "falcon", "tundra"),
     "B": ("onyx", "cedar", "glacier", "copper", "violet", "lantern", "summit", "orchard", "copper-shared"),
 }
@@ -99,6 +100,8 @@ def sections(md):
     return out
 def run_script(filename, args=()):
     path = ROOT / "scripts" / filename
+    if filename in ("reforco-preparar.sh", "reforco-validar.sh", "reforco-limpar.sh"):
+        path = ROOT / "11-reforco-final" / filename.removeprefix("reforco-")
     if not path.is_file():
         return {"ok": False, "code": 127, "output": "Script nao encontrado: " + filename}
     try:
@@ -156,9 +159,12 @@ class Handler(BaseHTTPRequestHandler):
             return self.send({"tasks": tasks})
         if url.path == "/api/exam":
             variant = parse_qs(url.query).get("variant", ["A"])[0]
-            if variant not in ("A", "B"):
+            if variant not in ("A", "B", "R"):
                 return self.send({"error": "Variante invalida"}, 400)
-            md = read(f"09-simulado/{variant}/enunciado.md")
+            md = read("11-reforco-final/README.md") if variant == "R" else read(f"09-simulado/{variant}/enunciado.md")
+            if variant == "R":
+                md = re.sub(r"^## R([1-5])", r"## Questão \1", md, flags=re.M)
+                md = md.split("\n## Validação")[0]
             return self.send({"variant": variant, "markdown": md})
         self.send({"error": "Nao encontrado"}, 404)
     def do_POST(self):
@@ -185,10 +191,13 @@ class Handler(BaseHTTPRequestHandler):
             suffix = TASKS[key][2]
             script = f"{ {'prepare': 'preparar', 'validate': 'validar', 'cleanup': 'limpar'}[action]}-{suffix}.sh"
             args = ()
-        elif mode == "exam" and data.get("variant") in ("A", "B") and action in ("prepare", "validate", "cleanup"):
+        elif mode == "exam" and data.get("variant") in ("A", "B", "R") and action in ("prepare", "validate", "cleanup"):
             v = data["variant"]
             script = f"simulado-{ {'prepare': 'preparar', 'validate': 'corrigir', 'cleanup': 'limpar'}[action]}.sh"
             args = (v,)
+            if v == "R":
+                script = f"reforco-{ {'prepare': 'preparar', 'validate': 'validar', 'cleanup': 'limpar'}[action]}.sh"
+                args = ()
         else:
             return self.send({"error": "Operacao nao permitida"}, 400)
         if not LOCK.acquire(blocking=False):
