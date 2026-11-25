@@ -1,0 +1,6 @@
+replicaCount: 1
+message: hello
+customLabels: {}
+image:
+  repository: registry.access.redhat.com/ubi9/nodejs-20-minimal
+  tag: latest
