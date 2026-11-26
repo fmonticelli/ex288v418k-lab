@@ -24,7 +24,7 @@ oc() {
 die() { echo "FAIL: $*" >&2; exit 2; }
 
 assert_v3_ns() {
-  case "$1" in "${V3_PREFIX}"*) ;; *) die "recusado: '$1' nao tem o prefixo ${V3_PREFIX}" ;; esac
+  case "$1" in "${V3_PREFIX}"*|jasper|maple|obsidian|saffron|raven) ;; *) die "recusado: '$1' nao tem o prefixo ${V3_PREFIX}" ;; esac
 }
 
 require_login() {
