@@ -7,10 +7,13 @@
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 V="${1:-}"; case "$V" in A|B) ;; *) die "uso: simulado-preparar.sh A|B" ;; esac
-ONLY="${SIM_ONLY:-1 2 3 4 5 6 7 8}"
+ONLY="${2:-${SIM_ONLY:-1 2 3 4 5 6 7 8}}"
+for n in $ONLY; do case "$n" in 1|2|3|4|5|6|7|8) ;; *) die "questao invalida: $n" ;; esac; done
 want() { case " $ONLY " in *" $1 "*) return 0 ;; *) return 1 ;; esac; }   # <n> : a task n entra nesta execucao?
 require_login
-exists "$INFRA_NS" route gitea || die "Git interno nao encontrado: rode bash scripts/infra-up.sh"
+if want 1 || want 2 || want 3 || want 8; then
+  exists "$INFRA_NS" route gitea || die "Git interno nao encontrado: rode bash scripts/infra-up.sh"
+fi
 for n in 1 2 3 4 5 6 7 8; do if want "$n"; then new_project "$(sim_ns "$V" "$n")"; fi; done
 for n in 1 2 3 8; do   # credenciais do Git interno (o enunciado so informa usuario/URL; a senha: scripts/credenciais.sh --show)
   if want "$n"; then

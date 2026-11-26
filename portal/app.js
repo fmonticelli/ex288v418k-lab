@@ -455,7 +455,7 @@ const LABEL = {
 async function action(kind) {
   const exam = state.mode === 'exam';
   const part = parts()[selIndex()];
-  const target = exam ? 'simulado ' + state.variant : 'tarefa ' + (part?.title || '') + ' (exercício ' + selectedExercise(part).id + ')';
+  const target = exam ? 'simulado ' + state.variant + (kind === 'prepare' ? ' — questão ' + (selIndex() + 1) : '') : 'tarefa ' + (part?.title || '') + ' (exercício ' + selectedExercise(part).id + ')';
   if (kind === 'cleanup') {
     const ok = await confirmDialog('Limpar ambiente?',
       exam ? `Todos os namespaces do simulado ${state.variant} serão excluídos, inclusive o compartilhado. Gitea, Nexus e a nota registrada continuam.`
@@ -463,7 +463,7 @@ async function action(kind) {
     if (!ok) return;
   }
   if (kind === 'prepare' && exam && elapsed(currentTimer()) > 0) {
-    const ok = await confirmDialog('Preparar de novo?', 'O simulado já está em andamento. Preparar novamente pode recriar recursos e apagar o que você já fez.', 'Preparar mesmo assim');
+    const ok = await confirmDialog('Preparar de novo?', 'Somente a questão selecionada será preparada. Se já foi preparada, alguns recursos dela podem ser reaplicados. As demais questões não serão alteradas.', 'Preparar mesmo assim');
     if (!ok) return;
   }
   busy = true; statusSeq++;
@@ -473,7 +473,10 @@ async function action(kind) {
   btns[kind].innerHTML = '<span class="spinner" aria-hidden="true"></span>' + LABEL[kind].run;
   showAlert('running', LABEL[kind].run, `Executando o script da ${target}. Pode levar alguns minutos.`);
   const body = { mode: state.mode, action: kind };
-  if (exam) body.variant = state.variant; else body.task = part.id;
+  if (exam) {
+    body.variant = state.variant;
+    if (kind === 'prepare') body.question = selIndex() + 1;
+  } else body.task = part.id;
   try {
     const r = await fetch('/api/run', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
     const d = await r.json();

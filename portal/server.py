@@ -199,9 +199,14 @@ class Handler(BaseHTTPRequestHandler):
             v = data["variant"]
             script = f"simulado-{ {'prepare': 'preparar', 'validate': 'corrigir', 'cleanup': 'limpar'}[action]}.sh"
             args = (v,)
+            if action == "prepare":
+                question = str(data.get("question", ""))
+                if question not in tuple(str(i) for i in range(1, 6 if v == "R" else 9)):
+                    return self.send({"error": "Questao invalida para preparacao"}, 400)
+                args = (v, question)
             if v == "R":
                 script = f"reforco-{ {'prepare': 'preparar', 'validate': 'validar', 'cleanup': 'limpar'}[action]}.sh"
-                args = ()
+                args = (question,) if action == "prepare" else ()
         else:
             return self.send({"error": "Operacao nao permitida"}, 400)
         if not LOCK.acquire(blocking=False):
