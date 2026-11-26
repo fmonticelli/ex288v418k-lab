@@ -329,7 +329,7 @@ dialog::backdrop{background:#151515a6}
             <tbody>
               <tr><td>Gitea</td><td><a class="mono" href="http://gitea-ex288-v3-infra.apps-crc.testing" target="_blank" rel="noopener">gitea-ex288-v3-infra.apps-crc.testing</a></td><td class="mono">ex288</td></tr>
               <tr><td>Nexus</td><td><a class="mono" href="http://nexus-ex288-v3-infra.apps-crc.testing" target="_blank" rel="noopener">nexus-ex288-v3-infra.apps-crc.testing</a></td><td class="mono">admin</td></tr>
-              <tr><td>Senha</td><td colspan="2"><span class="secret"><span class="mono" id="secret" data-value="Ex288Lab2026!">••••••••••••</span><button class="btn btn-plain" id="secret-toggle" aria-pressed="false">Mostrar</button></span></td></tr>
+              <tr><td>Senha</td><td colspan="2"><span class="secret"><span class="mono" id="secret" data-value="ex288_2026">••••••••••••</span><button class="btn btn-plain" id="secret-toggle" aria-pressed="false">Mostrar</button><button type="button" class="btn btn-plain" id="secret-copy">Copiar senha</button><span id="secret-copy-status" role="status" aria-live="polite"></span></span></td></tr>
             </tbody>
           </table>
           <p class="note">A mesma senha vale para os dois serviços e pode ser trocada com <code>EX288_LAB_PASSWORD</code>. Para reconciliar serviços existentes, rode <code>bash scripts/infra-up.sh</code>.</p>

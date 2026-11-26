@@ -543,6 +543,30 @@ $('secret-toggle').onclick = () => {
   b.setAttribute('aria-pressed', String(show));
 };
 
+$('secret-copy').onclick = async () => {
+  const value = $('secret').dataset.value;
+  const status = $('secret-copy-status');
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      await navigator.clipboard.writeText(value);
+    } else {
+      const field = document.createElement('textarea');
+      field.value = value;
+      field.setAttribute('readonly', '');
+      field.style.position = 'fixed';
+      field.style.opacity = '0';
+      document.body.append(field);
+      try {
+        field.select();
+        if (!document.execCommand('copy')) throw new Error('Falha ao copiar');
+      } finally { field.remove(); $('secret-copy').focus(); }
+    }
+    status.textContent = 'Copiada!';
+  } catch {
+    status.textContent = 'Não foi possível copiar. Use Mostrar.';
+  }
+};
+
 /* ---------- Inicialização ---------- */
 async function loadExam(v) {
   if (examText[v] != null) return;
