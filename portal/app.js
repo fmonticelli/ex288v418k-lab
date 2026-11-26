@@ -29,6 +29,8 @@ function loadState() {
   s.mode = s.mode === 'task' ? 'task' : 'exam';
   s.variant = ['A','B','R'].includes(s.variant) ? s.variant : 'A';
   s.sel ||= { exam: { A: 0, B: 0 }, task: 0 };
+  s.sel.exercise ||= {};
+  s.expanded ||= {};
   s.checks ||= {};
   s.grades ||= {};
   s.timers ||= { exam: {}, task: {} };
@@ -140,9 +142,18 @@ function setSel(i) {
   if (state.mode === 'exam') state.sel.exam[state.variant] = i; else state.sel.task = i;
   save();
 }
+function exercises(part) {
+  return part?.sections?.length ? part.sections : [{id:'1',title:'Exercício único',body:''}];
+}
+function selectedExercise(part) {
+  const list = exercises(part);
+  return list.find(s => s.id === state.sel.exercise[part?.id]) || list[0];
+}
 function checkItems(part, idx) {
   if (state.mode === 'task') {
-    return (part.sections || []).map(s => ({ key: `task:${part.id}:${s.id}`, html: '<b>E' + esc(s.id) + '.</b> ' + inline(s.title) }));
+    const s = selectedExercise(part);
+    const lines = listLines(s.body || part.body);
+    return (lines.length ? lines : [s.title]).map((l,j) => ({key: `task:${part.id}:${s.id}:${j}`, html: inline(l)}));
   }
   const lines = listLines(part.body);
   const src = lines.length ? lines : [part.title];
@@ -156,7 +167,8 @@ function partProgress(part, idx) {
 /* ---------- Cronômetro ---------- */
 function currentTimer() {
   if (state.mode === 'exam') return (state.timers.exam[state.variant] ||= { acc: 0, since: null });
-  const id = parts()[selIndex()]?.id ?? '0';
+  const part = parts()[selIndex()];
+  const id = (part?.id ?? '0') + ':' + selectedExercise(part).id;
   return (state.timers.task[id] ||= { acc: 0, since: null });
 }
 const elapsed = t => t.acc + (t.since ? Date.now() - t.since : 0);
@@ -268,12 +280,12 @@ function render() {
   const scope = exam ? 'Simulado ' + state.variant : 'Treino por tarefa';
   const crumbs = { activities: [scope, 'Atividades'], instructions: ['Instruções'], grade: [scope, 'Nota final'] }[state.page];
   $('crumbs').innerHTML = crumbs.map(c => '<li>' + esc(c) + '</li>').join('');
-  $('title').textContent = state.page === 'activities' ? (part?.title || 'Sem enunciados') : state.page === 'instructions' ? 'Instruções e infraestrutura' : 'Nota final';
+  $('title').textContent = state.page === 'activities' ? (part ? part.title + (exam ? '' : ' — Exercício ' + selectedExercise(part).id.padStart(2,'0')) : 'Sem enunciados') : state.page === 'instructions' ? 'Instruções e infraestrutura' : 'Nota final';
 
   if (part) {
-    const body = exam ? part.body : [part.body, ...(part.sections || []).map(s => s.body)].join('\n\n');
+    const body = exam ? part.body : [part.body, selectedExercise(part).body].join('\n\n');
     $('question').innerHTML = markdown(body) || '<p>Esta tarefa não tem enunciado em texto.</p>';
-    $('statement-meta').textContent = (exam ? 'Questão ' : 'Tarefa ') + (idx + 1) + ' de ' + list.length;
+    $('statement-meta').textContent = exam ? 'Questão ' + (idx + 1) + ' de ' + list.length : 'Exercício ' + selectedExercise(part).id + ' de ' + exercises(part).length;
     const items = checkItems(part, idx);
     const ul = $('checks');
     ul.replaceChildren();
@@ -295,7 +307,7 @@ function render() {
     renderProgress(part, idx);
   }
 
-  $('validate').textContent = exam ? 'Validar simulado' : 'Validar tarefa';
+  $('validate').textContent = exam ? 'Validar simulado' : 'Validar tarefa inteira';
   renderGrade();
   renderTimer();
 }
@@ -304,6 +316,43 @@ function renderNav(list = parts(), idx = selIndex()) {
   const nav = $('nav');
   nav.replaceChildren();
   list.forEach((p, i) => {
+    if (state.mode === 'task') {
+      const li = document.createElement('li');
+      const b = document.createElement('button');
+      const expanded = state.expanded[p.id] ?? i === idx;
+      b.className = 'nav-item q-item' + (i === idx ? ' current' : '');
+      b.textContent = p.short + (expanded ? ' ▾' : ' ▸');
+      b.setAttribute('aria-expanded', String(expanded));
+      b.onclick = () => {
+        if (busy) return;
+        state.expanded[p.id] = !expanded;
+        if (!expanded) setSel(i);
+        state.page = 'activities'; save(); render(); refreshStatus();
+      };
+      li.append(b);
+      if (expanded) {
+        const sub = document.createElement('ul');
+        sub.className = 'exercise-nav';
+        exercises(p).forEach(s => {
+          const item = document.createElement('li');
+          const btn = document.createElement('button');
+          const active = i === idx && s.id === selectedExercise(p).id;
+          btn.className = 'nav-item q-item exercise-item' + (active ? ' current' : '');
+          btn.textContent = 'Exercício ' + s.id.padStart(2, '0');
+          btn.title = s.title;
+          if (active) btn.setAttribute('aria-current','step');
+          btn.onclick = () => {
+            if (busy) return;
+            setSel(i); state.sel.exercise[p.id] = s.id; state.page = 'activities';
+            save(); closeNav(); render(); refreshStatus();
+          };
+          item.append(btn); sub.append(item);
+        });
+        li.append(sub);
+      }
+      nav.append(li);
+      return;
+    }
     const pr = partProgress(p, i);
     const li = document.createElement('li');
     const b = document.createElement('button');
@@ -406,11 +455,11 @@ const LABEL = {
 async function action(kind) {
   const exam = state.mode === 'exam';
   const part = parts()[selIndex()];
-  const target = exam ? 'simulado ' + state.variant : 'tarefa ' + (part?.title || '');
+  const target = exam ? 'simulado ' + state.variant : 'tarefa ' + (part?.title || '') + ' (exercício ' + selectedExercise(part).id + ')';
   if (kind === 'cleanup') {
     const ok = await confirmDialog('Limpar ambiente?',
       exam ? `Todos os namespaces do simulado ${state.variant} serão excluídos, inclusive o compartilhado. Gitea, Nexus e a nota registrada continuam.`
-           : `O namespace da ${target} será excluído. Gitea e Nexus continuam.`, 'Excluir namespaces');
+           : `O namespace compartilhado por todos os exercícios da ${part.title} será excluído. Gitea e Nexus continuam.`, 'Excluir namespaces');
     if (!ok) return;
   }
   if (kind === 'prepare' && exam && elapsed(currentTimer()) > 0) {

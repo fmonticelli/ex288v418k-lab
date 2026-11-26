@@ -4,7 +4,9 @@
 
 Prepare com `bash scripts/simulado-preparar.sh A`. Cada task tem seu **projeto próprio** (`crimson`, `quartz`, `ember`, `harbor`, `cobalt`, `willow`, `falcon`, `tundra`). Git interno: URL e usuário via `bash scripts/credenciais.sh`; Secret `git-creds` já existe nos projetos T1, T2, T3 e T8. Nexus (usuário `admin`) e registry interno conforme o script de credenciais. Todos os nomes são exatos.
 
-## Task 1 — Deploy a partir do Git (projeto `crimson`)
+## Task 1 — Deploy a partir do Git
+
+Utilize o namespace **`crimson`** para esta atividade.
 1. Faça o deploy do repositório **`webapp`**, branch **`dev`**, como **`portal`** usando o builder Node.js 22 (UBI 9) e o Secret `git-creds`.
 2. A aplicação recebe a variável de ambiente (runtime) **`APP_MESSAGE=sim-a`**; os recursos criados (BuildConfig, Deployment, Service) têm o rótulo **`tier=web`**.
 3. Exponha com a Route **`portal`** (HTTP) e crie a Route **`portal-tls`** (edge, redirecionando HTTP para HTTPS) para o mesmo Service.
@@ -16,7 +18,9 @@ curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"message":"sim-a"`.
 
-## Task 2 — Deploy a partir de um Dockerfile (projeto `quartz`)
+## Task 2 — Deploy a partir de um Dockerfile
+
+Utilize o namespace **`quartz`** para esta atividade.
 1. Crie o BuildConfig **`shop`** (estratégia Docker) a partir de **`webapp-docker`**, com saída **`shop:2.0`** e o `ARG` **`NPM_REGISTRY`** apontando para o repositório **`npm-public`** do Nexus. Build `Complete`.
 2. Faça o deploy **`shop`** a partir da ImageStreamTag `shop:2.0`.
 3. A Route **`shop`** deve responder `"app":"webapp-docker"` e o processo não pode ser UID 0.
@@ -28,7 +32,9 @@ curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"app":"webapp-docker"`.
 
-## Task 3 — Deploy com S2I (projeto `ember`)
+## Task 3 — Deploy com S2I
+
+Utilize o namespace **`ember`** para esta atividade.
 1. Faça o deploy de **`webapp-s2i`** como **`catalog`** com o builder Node.js 22 e o Secret `git-creds`.
 2. O build deve usar o **Nexus** (`npm-public`) como registry (variável de **build**); o caminho `/build-info` deve mostrar o endereço do Nexus.
 3. Sobrescreva em **runtime** a mensagem da aplicação com **`APP_MESSAGE=catalog-a`** (ela é definida em `.s2i/environment`) e exponha a Route `catalog`.
@@ -40,7 +46,9 @@ curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"message":"catalog-a"`.
 
-## Task 4 — ConfigMap e Secret existente (projeto `harbor`)
+## Task 4 — ConfigMap e Secret existente
+
+Utilize o namespace **`harbor`** para esta atividade.
 A aplicação `cfgapp` já está implantada. O Secret **`catalog-db`** já existe (chaves `login` e `secret`).
 1. Crie o ConfigMap **`catalog-cfg`** com `GREETING=SimA`, `LANG_CODE=pt-BR` e `API_HOST=http://catalog:8080` e injete **todas** as chaves como variáveis de ambiente em `cfgapp`.
 2. Defina **`DB_USER`** (chave `login`) e **`DB_PASSWORD`** (chave `secret`) a partir de `catalog-db`, sem valores literais.
@@ -53,7 +61,9 @@ curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"greeting":"SimA"` e `"lang":"pt-BR"`.
 
-## Task 5 — Probes (projeto `cobalt`)
+## Task 5 — Probes
+
+Utilize o namespace **`cobalt`** para esta atividade.
 O Deployment `slowapp` demora ~30 s para subir (endpoints `/healthz` e `/ready`, porta 8080).
 1. **Startup** HTTP em `/healthz`, tolerando pelo menos **45 s**.
 2. **Liveness** HTTP `/healthz` (período 8 s, timeout 2 s, 3 falhas) e **readiness** HTTP `/ready` (período 4 s).
@@ -66,7 +76,9 @@ curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** HTTP 200 em `/healthz` e `/ready` quando a aplicação estiver pronta.
 
-## Task 6 — Templates (projeto `willow`)
+## Task 6 — Templates
+
+Utilize o namespace **`willow`** para esta atividade.
 Template fornecido: `apps/templates/webapp-template.yaml`.
 1. Cadastre-o no projeto (objeto `Template` chamado `webapp-template`).
 2. Instancie **`orders`** usando um **arquivo de parâmetros** (`NAME=orders`, `MESSAGE=sim-a`, `REPLICAS=2`): 2 réplicas prontas e Route respondendo `sim-a`.
@@ -79,7 +91,9 @@ curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `sim-a`.
 
-## Task 7 — Helm (projeto `falcon`)
+## Task 7 — Helm
+
+Utilize o namespace **`falcon`** para esta atividade.
 O Nexus tem um repositório Helm (`helm-hosted`, exige usuário e senha) com o chart `ex288-hello` nas versões 0.1.0 e 0.2.0.
 1. Adicione o repositório e instale a versão **0.1.0** como release **`inventory`** neste projeto.
 2. Faça o **upgrade** para a versão **0.2.0**: a Route `inventory-hello` deve responder `hello from helm v2`.
@@ -92,7 +106,9 @@ curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `hello from helm v2`.
 
-## Task 8 — CI/CD (projeto `tundra`) — 16 pontos
+## Task 8 — CI/CD — 16 pontos
+
+Utilize o namespace **`tundra`** para esta atividade.
 1. (6) Pipeline **`sim-ci`** com **3 tasks** encadeadas por `runAfter` (taskSpec embutido) e parâmetro **`TARGET`**; execute até `Succeeded`.
 2. (6) Pipeline **`sim-build`**: `git-clone` (Tasks do Operator, cluster resolver) do repositório privado `webapp-docker` → `buildah` publicando `image-registry.openshift-image-registry.svc:5000/tundra/simapp:latest`; `Succeeded`.
 3. (4) Deployment **`simapp`** com essa imagem e Route `simapp` respondendo `"app":"webapp-docker"`.

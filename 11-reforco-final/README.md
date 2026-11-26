@@ -2,7 +2,9 @@
 
 Cenários originais de treinamento. Prepare pelo portal ou com `bash 11-reforco-final/preparar.sh`. Credenciais: `bash scripts/credenciais.sh --show`.
 
-## R1 — Deploy S2I (projeto `jasper`, 15 min)
+## R1 — Deploy S2I (15 min)
+
+Utilize o namespace **`jasper`** para esta atividade.
 
 Use o repositório privado **`ex288/webapp.git`**.
 
@@ -12,7 +14,9 @@ Use o repositório privado **`ex288/webapp.git`**.
 
 **Retorno esperado:** a Route deve retornar `"branch":"dev"` e `"message":"reforco-dev"`.
 
-## R2 — Dockerfile e Nexus (projeto `maple`, 25 min)
+## R2 — Dockerfile e Nexus (25 min)
+
+Utilize o namespace **`maple`** para esta atividade.
 
 Use a branch `main` de **`ex288/webapp-docker.git`** e o Secret `git-creds`.
 
@@ -22,7 +26,9 @@ Use a branch `main` de **`ex288/webapp-docker.git`** e o Secret `git-creds`.
 
 **Retorno esperado:** build `Complete` e resposta `"app":"webapp-docker"`.
 
-## R3 — Binary Build (projeto `obsidian`, 30 min)
+## R3 — Binary Build (30 min)
+
+Utilize o namespace **`obsidian`** para esta atividade.
 
 1. Clone a branch `main` de **`ex288/httpd-ex.git`**.
 2. Baixe o artefato **`ex288/site-1.0.tar.gz`** do Nexus `raw-hosted` autenticado.
@@ -31,7 +37,9 @@ Use a branch `main` de **`ex288/webapp-docker.git`** e o Secret `git-creds`.
 
 **Retorno esperado:** a raiz da Route contém `site 1.0`; `/git/index.html` serve a página do Git.
 
-## R4 — Helm (projeto `saffron`, 20 min)
+## R4 — Helm (20 min)
+
+Utilize o namespace **`saffron`** para esta atividade.
 
 O Nexus fornece o chart **`customer`**, versão `0.1.0`, no repositório autenticado `helm-hosted`.
 
@@ -41,7 +49,9 @@ O Nexus fornece o chart **`customer`**, versão `0.1.0`, no repositório autenti
 
 **Retorno esperado:** as duas Routes respondem as respectivas mensagens.
 
-## R5 — Tekton (projeto `raven`, 25 min)
+## R5 — Tekton (25 min)
+
+Utilize o namespace **`raven`** para esta atividade.
 
 A Pipeline **`reforco-ci`** e o PVC `shared-pvc` já existem.
 
