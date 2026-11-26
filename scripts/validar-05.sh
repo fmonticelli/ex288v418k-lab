@@ -2,7 +2,7 @@
 # validar-05.sh - valida os exercicios E1-E4 da T5. Uso: bash scripts/validar-05.sh [projeto]
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
-NS="${1:-ex288-v3-t5}"; assert_v3_ns "$NS"; require_login
+NS="${1:-frost}"; assert_v3_ns "$NS"; require_login
 
 P() { val "$NS" deployment "$1" "{.spec.template.spec.containers[0].$2}"; }   # <deploy> <caminho-jsonpath>
 pod_ready_clean() {  # <app> -> pod(s) ativo(s) Ready e nenhum reinicio (pods Terminating sao ignorados)

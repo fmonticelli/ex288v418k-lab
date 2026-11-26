@@ -2,7 +2,7 @@
 # validar-02.sh - valida os exercicios E1-E5 da T2. Uso: bash scripts/validar-02.sh [projeto]
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
-NS="${1:-ex288-v3-t2}"; assert_v3_ns "$NS"; require_login
+NS="${1:-coral}"; assert_v3_ns "$NS"; require_login
 
 e1() {
   [ "$(val "$NS" bc docker1 '{.spec.strategy.type}')" = Docker ] &&

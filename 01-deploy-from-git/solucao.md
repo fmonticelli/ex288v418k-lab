@@ -8,7 +8,7 @@ Variáveis usadas (valores vêm de `bash scripts/credenciais.sh --show`; **não*
 
 ```bash
 GIT=http://GIT-INTERNO/ex288          # rota do Gitea
-oc project ex288-v3-t1
+oc project birch
 ```
 
 ## E1 — `web1` a partir do repositório privado

@@ -4,7 +4,7 @@ set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 require_login
 exists "$INFRA_NS" route gitea || die "Git interno nao encontrado: rode bash scripts/infra-up.sh"
-NS=ex288-v3-t3
+NS=dune
 new_project "$NS"
 git_resolve_env
 oc create secret generic git-creds -n "$NS" --type=kubernetes.io/basic-auth \

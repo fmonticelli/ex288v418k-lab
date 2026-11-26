@@ -2,7 +2,7 @@
 
 # T8 — Exercícios
 
-Preparação: `bash scripts/preparar-08.sh` (exige o Pipelines Operator; cria `ex288-v3-t8`, o Secret `git-basic-auth` anotado para o Tekton, o vínculo com a SA `pipeline` e o pipeline defeituoso `broken-ci`). Validar: `bash scripts/validar-08.sh`.
+Preparação: `bash scripts/preparar-08.sh` (exige o Pipelines Operator; cria `indigo`, o Secret `git-basic-auth` anotado para o Tekton, o vínculo com a SA `pipeline` e o pipeline defeituoso `broken-ci`). Validar: `bash scripts/validar-08.sh`.
 
 **E1 — Pipeline com duas tasks encadeadas.**
 Crie o Pipeline **`mini-ci`** com duas tasks encadeadas por `runAfter` (task `prepare` e task `verify`; use `taskSpec` embutido e a imagem `registry.access.redhat.com/ubi9/ubi-minimal:latest`) e um parâmetro `MESSAGE` com valor padrão. Execute-o com um PipelineRun (sem `tkn`) até `Succeeded`.
@@ -10,11 +10,11 @@ Crie o Pipeline **`mini-ci`** com duas tasks encadeadas por `runAfter` (task `pr
 **Teste esperado (E1):** PipelineRun `Succeeded`; não há Route exigida em E1.
 
 **E2 — Git → build → deploy.**
-Crie o Pipeline **`build-and-deploy`** que (1) clona o repositório privado `webapp-docker` do Git interno com a task fornecida pelo Operator, (2) faz o build da imagem com o `Dockerfile` e publica em `image-registry.openshift-image-registry.svc:5000/ex288-v3-t8/ci-app:latest`, (3) faz o deploy da aplicação **`ci-app`**. Use um workspace `shared` com `volumeClaimTemplate`. Depois de um PipelineRun `Succeeded`, a Route `ci-app` deve responder `"app":"webapp-docker"`.
+Crie o Pipeline **`build-and-deploy`** que (1) clona o repositório privado `webapp-docker` do Git interno com a task fornecida pelo Operator, (2) faz o build da imagem com o `Dockerfile` e publica em `image-registry.openshift-image-registry.svc:5000/indigo/ci-app:latest`, (3) faz o deploy da aplicação **`ci-app`**. Use um workspace `shared` com `volumeClaimTemplate`. Depois de um PipelineRun `Succeeded`, a Route `ci-app` deve responder `"app":"webapp-docker"`.
 
 **Teste com curl (E2):**
 ```bash
-HOST=$(oc get route ci-app -n ex288-v3-t8 -o jsonpath='{.spec.host}')
+HOST=$(oc get route ci-app -n indigo -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"app":"webapp-docker"`.

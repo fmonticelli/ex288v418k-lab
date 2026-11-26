@@ -6,13 +6,13 @@
 | -------------------- | -------------------------------------------------------------------------------- |
 | **Objetivo do laboratório**    | "Definir probes: startup, liveness e readiness" `[RELATO PESSOAL]`               |
 | **Objetivo oficial** | "Use application health monitoring" `[OFICIAL]`                                  |
-| **Projeto**          | `ex288-v3-t5` · `bash scripts/preparar-05.sh` · `validar-05.sh` · `limpar-05.sh` |
+| **Projeto**          | `frost` · `bash scripts/preparar-05.sh` · `validar-05.sh` · `limpar-05.sh` |
 | **Pré-requisito**    | só o CRC (sem Git/Nexus)                                                         |
 
 ## Caminho mais rápido na prova
 
 ```bash
-oc project ex288-v3-t5
+oc project frost
 oc set probe deployment/probeapp --startup   --get-url=http://:8080/healthz --period-seconds=2  --failure-threshold=30
 oc set probe deployment/probeapp --liveness  --get-url=http://:8080/healthz --period-seconds=10 --timeout-seconds=2 --failure-threshold=3
 oc set probe deployment/probeapp --readiness --get-url=http://:8080/ready   --period-seconds=5

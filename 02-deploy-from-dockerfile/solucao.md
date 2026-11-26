@@ -5,7 +5,7 @@
 > **Status:** `VALIDADO NO CLUSTER` (CRC 4.22.14, Gitea privado, Nexus, builds Docker reais). **E1–E4:** `developer` impersonado, antes `0 PASS / 5 FAIL`, depois `4 PASS` (+ E5). **E5:** executado no WSL RHEL 10.2 com `podman` 5.8.2 e o login real de `developer`: `PASS` (imagem de 258 MB, `istag pushed:1.0` criado, rota respondeu `"app":"webapp-docker"`); o push funcionou **com TLS verificado** (CA em `/etc/containers/certs.d/`, [pré-requisitos §9](../00-guia/preparar-wsl-rhel.md)). Respostas reais: `docker1` → `"uid":1000690000` (não é 0); `root-app` → `"dataDir":"/app/data"` depois da correção; `site-bin` → `site 1.0` (artefato baixado do Nexus `raw-hosted`); o pacote `ms` apareceu no `npm-proxy` do Nexus (mirror usado no `ARG`). **Sintoma do E3 verificado:** o pod novo fica em `CrashLoopBackOff` com `Error: EACCES … open '/app/data/started'` (SCC `restricted-v2`) enquanto o pod antigo segue `Running`. As soluções **alteram os repositórios** do Gitea (E3 e T1/T3): rode `bash scripts/infra-up.sh` de novo para restaurá-los.
 
 ```bash
-oc project ex288-v3-t2
+oc project coral
 GIT=http://GIT-INTERNO/ex288 ; NEXUS=http://NEXUS-INTERNO
 ```
 
@@ -76,10 +76,10 @@ curl -s "http://$(oc get route site-bin -o jsonpath='{.spec.host}')/"      # sit
 HOST=$(oc registry info --public)        # depreciado, mas funciona para o developer (VERIFICADO)
 podman login -u developer -p "$(oc whoami -t)" "$HOST"
 git clone "http://USUARIO:SENHA@GIT-INTERNO/ex288/webapp-docker.git" /tmp/wd2 && cd /tmp/wd2
-podman build -t "$HOST/ex288-v3-t2/pushed:1.0" -f Dockerfile .
-podman push "$HOST/ex288-v3-t2/pushed:1.0"
+podman build -t "$HOST/coral/pushed:1.0" -f Dockerfile .
+podman push "$HOST/coral/pushed:1.0"
 oc get istag pushed:1.0
-oc new-app --image-stream ex288-v3-t2/pushed:1.0 --name pushed && oc expose service pushed
+oc new-app --image-stream coral/pushed:1.0 --name pushed && oc expose service pushed
 ```
 
 > [!WARNING]

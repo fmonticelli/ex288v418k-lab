@@ -56,7 +56,7 @@ SIM_NS = {
 }
 def target_names(data):
     if data.get("mode") == "task" and str(data.get("task")) in TASKS:
-        return [f"ex288-v3-t{data['task']}"]
+        return [["agate","birch","coral","dune","elm","frost","granite","heather","indigo"][int(data["task"])]] + (["elm-shared"] if str(data["task"]) == "4" else [])
     if data.get("mode") == "exam" and data.get("variant") in SIM_NS:
         return list(SIM_NS[data["variant"]])
     return None

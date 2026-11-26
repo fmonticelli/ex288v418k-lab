@@ -2,7 +2,7 @@
 
 # T1 — Exercícios (resultado esperado; sem passo a passo)
 
-Preparação: `bash scripts/preparar-01.sh` · Projeto: `ex288-v3-t1` · Git: `bash scripts/credenciais.sh --show` · Validar: `bash scripts/validar-01.sh`.
+Preparação: `bash scripts/preparar-01.sh` · Projeto: `birch` · Git: `bash scripts/credenciais.sh --show` · Validar: `bash scripts/validar-01.sh`.
 Repositórios no Git interno (todos **privados**, usuário/senha do script): `webapp` (branches `main` e `dev`) e `monorepo` (pastas `api/` e `site/`).
 
 **E1 — Aplicação a partir do repositório privado (básico).**
@@ -10,7 +10,7 @@ Faça o deploy do repositório `webapp` (branch `main`) como aplicação **`web1
 
 **Teste com curl (E1):**
 ```bash
-HOST=$(oc get route web1 -n ex288-v3-t1 -o jsonpath='{.spec.host}')
+HOST=$(oc get route web1 -n birch -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"branch":"main"`.
@@ -20,7 +20,7 @@ Faça o deploy do branch **`dev`** do mesmo repositório como **`web-dev`**. Tod
 
 **Teste com curl (E2):**
 ```bash
-HOST=$(oc get route web-dev -n ex288-v3-t1 -o jsonpath='{.spec.host}')
+HOST=$(oc get route web-dev -n birch -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"branch":"dev"` e `"message":"from-dev"`.
@@ -30,7 +30,7 @@ Do repositório `monorepo`, faça o deploy de **`api`** (diretório `api`, Node.
 
 **Teste com curl (E3):**
 ```bash
-HOST=$(oc get route api -n ex288-v3-t1 -o jsonpath='{.spec.host}')
+HOST=$(oc get route api -n birch -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `monorepo-api`.
@@ -40,9 +40,9 @@ Clone o repositório `webapp` com suas credenciais, altere o conteúdo do arquiv
 
 **Teste com curl (E4):**
 ```bash
-HOST=$(oc get route web1 -n ex288-v3-t1 -o jsonpath='{.spec.host}')
+HOST=$(oc get route web1 -n birch -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"branch":"main-v2"`.
 
-Critérios gerais: tudo no projeto `ex288-v3-t1`; nomes exatos; nada que dependa de `oc port-forward`; nenhuma senha escrita em arquivos do material.
+Critérios gerais: tudo no projeto `birch`; nomes exatos; nada que dependa de `oc port-forward`; nenhuma senha escrita em arquivos do material.

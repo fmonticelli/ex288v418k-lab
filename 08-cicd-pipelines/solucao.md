@@ -5,7 +5,7 @@
 > **Status:** `VALIDADO NO CLUSTER` — CRC 4.22.14 com o Pipelines Operator v1.24.3 (instalado por você), `developer` impersonado: antes `0 PASS / 4 FAIL`, depois **`4 PASS / 0 FAIL`**. Verificado: `mini-ci` `Succeeded`; `build-and-deploy` `Succeeded` (`fetch` 52 s, `build` 44 s, `deploy` 10 s) e a rota `ci-app` respondeu `"app":"webapp-docker"` com UID aleatório; Tasks reais do Operator na 1.24: `git-clone` (params `URL`, `REVISION`, `DELETE_EXISTING`…; workspaces `output`, `basic-auth`), `buildah` (`IMAGE`, `DOCKERFILE`, `TLS_VERIFY`…; workspace `source`) e `openshift-client` (`SCRIPT`, `VERSION`) — os nomes usados em `pipeline-ci.yaml` estão corretos; o Git privado funcionou com o Secret `basic-auth` anotado `tekton.dev/git-0` e ligado à SA `pipeline`. **E3 verificado:** `runAfter: ["writ"]` é **rejeitado no `oc apply`** (`task read depends on writ but writ wasn't present in Pipeline`); com o workspace `dados` ≠ `data` o PipelineRun termina `CreateRunFailed: expected workspace "dados" to be provided by pipelinerun for pipeline task "read"`. **E4 verificado:** `POST` no webhook Generic → HTTP 200 → novo build `Complete` com `TESTS PASSED` no log do hook.
 
 ```bash
-oc project ex288-v3-t8                         # no simulado, use o projeto da task (ex288-v3-sa-t8 / sb-t8)
+oc project indigo                         # no simulado, use o projeto da task (ex288-v3-sa-t8 / sb-t8)
 oc get task -n openshift-pipelines            # git-clone, buildah, openshift-client...
 for t in git-clone buildah openshift-client; do echo "== $t"; oc get task $t -n openshift-pipelines -o jsonpath='{.spec.params[*].name}{"\n"}{.spec.workspaces[*].name}{"\n"}'; done
 ```
@@ -64,7 +64,7 @@ curl -s "http://$(oc get route ci-app -o jsonpath='{.spec.host}')/"
 ```
 
 > [!WARNING]
-> **O `IMAGE` tem de usar o namespace do projeto onde o pipeline roda** (`…:5000/<projeto>/<imagem>:<tag>`). A ServiceAccount `pipeline` só tem permissão de push no próprio projeto: apontar para outro namespace (por exemplo, colar o `ex288-v3-t8` deste exercício dentro do `ex288-v3-sa-t8` do simulado) faz o `buildah` falhar no fim do push com `trying to reuse blob … authentication required`. Observado no seu simulado A (a task `fetch` passa, a `build` falha no push e a `deploy` fica `0/1`); a causa vem do log, e com o `IMAGE` no projeto certo este mesmo pipeline passou nas minhas rodadas de validação (E2 e simulado A). Conferir: `oc get pipelinerun NOME -o jsonpath='{.spec.params}'`. Corrigir: novo PipelineRun com o `IMAGE` certo (o Pipeline não muda).
+> **O `IMAGE` tem de usar o namespace do projeto onde o pipeline roda** (`…:5000/<projeto>/<imagem>:<tag>`). A ServiceAccount `pipeline` só tem permissão de push no próprio projeto: apontar para outro namespace (por exemplo, colar o `indigo` deste exercício dentro do `ex288-v3-sa-t8` do simulado) faz o `buildah` falhar no fim do push com `trying to reuse blob … authentication required`. Observado no seu simulado A (a task `fetch` passa, a `build` falha no push e a `deploy` fica `0/1`); a causa vem do log, e com o `IMAGE` no projeto certo este mesmo pipeline passou nas minhas rodadas de validação (E2 e simulado A). Conferir: `oc get pipelinerun NOME -o jsonpath='{.spec.params}'`. Corrigir: novo PipelineRun com o `IMAGE` certo (o Pipeline não muda).
 
 ## E3 — depurar `broken-ci`
 

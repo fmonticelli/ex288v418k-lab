@@ -6,7 +6,7 @@
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Objetivo do laboratório**      | "Deploy de aplicação com S2I" `[RELATO PESSOAL]` (o Nexus pode entrar como mirror de dependências: `HIPÓTESE`)                                |
 | **Objetivos oficiais** | "Build and deploy applications using S2I framework" · "Customize existing S2I builder images" · "Troubleshoot application builds" `[OFICIAL]` |
-| **Projeto**            | `ex288-v3-t3` · `bash scripts/preparar-03.sh` · `validar-03.sh` · `limpar-03.sh`                                                              |
+| **Projeto**            | `dune` · `bash scripts/preparar-03.sh` · `validar-03.sh` · `limpar-03.sh`                                                              |
 | **Pré-requisito**      | infra no ar (Git privado + Nexus)                                                                                                             |
 
 ## Caminho mais rápido na prova

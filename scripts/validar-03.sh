@@ -2,7 +2,7 @@
 # validar-03.sh - valida os exercicios E1-E4 da T3. Uso: bash scripts/validar-03.sh [projeto]
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
-NS="${1:-ex288-v3-t3}"; assert_v3_ns "$NS"; require_login
+NS="${1:-dune}"; assert_v3_ns "$NS"; require_login
 
 e1() {
   [ "$(val "$NS" bc s2i1 '{.spec.strategy.type}')" = Source ] &&

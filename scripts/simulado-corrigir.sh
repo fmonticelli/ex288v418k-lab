@@ -4,7 +4,6 @@
 set -uo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 V="${1:-}"; case "$V" in A|B) ;; *) die "uso: simulado-corrigir.sh A|B" ;; esac
-v="$(echo "$V" | tr 'A-Z' 'a-z')"; P="ex288-v3-s${v}-t"
 require_login
 GOT=0; TOT=0; TGOT=0; TTOT=0
 n1="$(sim_ns "$V" "1")"; n2="$(sim_ns "$V" "2")"; n3="$(sim_ns "$V" "3")"; n4="$(sim_ns "$V" "4")"; n5="$(sim_ns "$V" "5")"; n6="$(sim_ns "$V" "6")"; n7="$(sim_ns "$V" "7")"; n8="$(sim_ns "$V" "8")"

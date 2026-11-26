@@ -6,13 +6,13 @@
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Objetivo do laboratório**      | "Deploy de aplicação a partir de Template" `[RELATO PESSOAL]`                                                                                                                                   |
 | **Objetivos oficiais** | "Create an OpenShift template" · "Use pre-existing templates written in either JSON or YAML format" · "Work with multi-container templates" · "Add custom parameters to a template" `[OFICIAL]` |
-| **Projeto**            | `ex288-v3-t6` · `bash scripts/preparar-06.sh` · `validar-06.sh` · `limpar-06.sh`                                                                                                                |
+| **Projeto**            | `granite` · `bash scripts/preparar-06.sh` · `validar-06.sh` · `limpar-06.sh`                                                                                                                |
 | **Pré-requisito**      | CRC; o E4 usa o Git interno (builds)                                                                                                                                                            |
 
 ## Caminho mais rápido na prova
 
 ```bash
-oc project ex288-v3-t6
+oc project granite
 oc process --parameters -f webapp-template.yaml                       # quais parametros existem / obrigatorios
 oc process -f webapp-template.yaml -p NAME=tpl1 -p MESSAGE=ola -p REPLICAS=2 | oc apply -f -
 oc get all,secret -l template=webapp-template
@@ -42,7 +42,7 @@ Equivalente em um passo: `oc new-app -f webapp-template.yaml -p NAME=tpl1 -p …
 | Sintoma | Causa |
 |---|---|
 | `error: unable to process template: ... required parameter NAME` / "parameter is required" | parâmetro `required: true` sem valor |
-| `processedtemplates ... is forbidden ... in the namespace "default"` (`VERIFICADO` no CRC) | `oc process` usa o **projeto atual**; sem `oc project NS` ou `-n NS` ele tenta processar em `default` → rode `oc project ex288-v3-t6` antes (ou `oc process -n NS`) |
+| `processedtemplates ... is forbidden ... in the namespace "default"` (`VERIFICADO` no CRC) | `oc process` usa o **projeto atual**; sem `oc project NS` ou `-n NS` ele tenta processar em `default` → rode `oc project granite` antes (ou `oc process -n NS`) |
 | `unknown parameter name "X"` | typo em `-p X=…` (use `--parameters`) |
 | `replicas: "2"` rejeitado | usou `${REPLICAS}` onde precisa de número → `${{REPLICAS}}` |
 | Reaplicar o mesmo `oc process \| oc apply` trocou a senha | `generate: expression` gera um **novo** valor a cada `process`; fixe com `-p TOKEN=…` |

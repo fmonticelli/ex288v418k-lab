@@ -5,7 +5,7 @@
 > **Status:** `VALIDADO NO CLUSTER` — executado no CRC 4.22.14 como `developer`: antes `0 PASS / 4 FAIL`, depois **`4 PASS / 0 FAIL`**. Sintoma real do E3 observado: *Liveness probe failed: … :9090 … connection refused* + *Killing*. Uma falha inicial do E4 foi bug do **validador** (contava reinícios de um pod antigo em `Terminating`) e foi corrigida (`pod_restarts` ignora pods com `deletionTimestamp`).
 
 ```bash
-oc project ex288-v3-t5
+oc project frost
 ```
 
 ## E1 — três probes HTTP

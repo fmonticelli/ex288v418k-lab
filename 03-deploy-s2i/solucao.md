@@ -5,7 +5,7 @@
 > **Status:** `VALIDADO NO CLUSTER` (CRC 4.22.14, Gitea privado, Nexus, builds S2I reais, `developer` impersonado): antes `0 PASS / 4 FAIL`, depois **`4 PASS / 0 FAIL`**. Respostas reais do `/build-info`: `s2i1` → `registry=https://registry.npmjs.org/` e depois `custom=yes`; `s2i-nexus` → `registry=http://nexus-ex288-v3-infra.apps-crc.testing/repository/npm-public/` (o `npm_config_registry` de build chega ao `npm config get registry` dentro do `assemble`); `s2i-broken` falha com `npm error … If you are behind a proxy` / `error: build error: … RUN /tmp/scripts/assemble: exit status 1` e fica `Complete` depois de corrigir a variável. Observado também: um `assemble` com erro de sintaxe (meu `sed` errado no 1º teste) derruba o build (`s2i1-2 Failed`) — por isso confira `cat .s2i/bin/assemble` antes do `git push`. As soluções alteram o repositório: rode `bash scripts/infra-up.sh` para restaurá-lo.
 
 ```bash
-oc project ex288-v3-t3 ; GIT=http://GIT-INTERNO/ex288 ; NEXUS=http://NEXUS-INTERNO
+oc project dune ; GIT=http://GIT-INTERNO/ex288 ; NEXUS=http://NEXUS-INTERNO
 ```
 
 ## E1

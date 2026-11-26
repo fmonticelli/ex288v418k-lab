@@ -6,14 +6,14 @@
 | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Objetivo do laboratório**      | "Deploy de aplicação a partir de um repositório Git" `[RELATO PESSOAL]` (várias subtarefas; Git **interno** fornecido pelo ambiente)                                                                                                          |
 | **Objetivos oficiais** | "Understand basic Git usage and work with Git in the context of deploying applications in OpenShift" · "Pull applications from existing Git repositories" · "Create and deploy single container and multi-container applications" `[OFICIAL]` |
-| **Projeto do lab**     | `ex288-v3-t1` · preparar: `bash scripts/preparar-01.sh` · validar: `bash scripts/validar-01.sh` · limpar: `bash scripts/limpar-01.sh`                                                                                                         |
+| **Projeto do lab**     | `birch` · preparar: `bash scripts/preparar-01.sh` · validar: `bash scripts/validar-01.sh` · limpar: `bash scripts/limpar-01.sh`                                                                                                         |
 | **Pré-requisito**      | `bash scripts/infra-up.sh` (Git privado com 5 repositórios) · credenciais: `bash scripts/credenciais.sh --show`                                                                                                                               |
 | **Validação**          | veja o status em [solucao.md](solucao.md)                                                                                                                                                                                                     |
 
 ## Caminho mais rápido na prova
 
 ```bash
-oc project ex288-v3-t1                                   # confira SEMPRE o projeto
+oc project birch                                   # confira SEMPRE o projeto
 git config --global credential.helper 'cache --timeout=3600'     # o oc new-app clona no CLIENTE (ver armadilhas)
 git ls-remote http://GIT-INTERNO/ex288/webapp.git                # digite usuario/senha UMA vez (fica so em memoria)
 oc create secret generic git-creds --type=kubernetes.io/basic-auth \

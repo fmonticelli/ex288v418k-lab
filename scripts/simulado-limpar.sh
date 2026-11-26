@@ -4,7 +4,6 @@
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 V="${1:-}"; case "$V" in A|B) ;; *) die "uso: simulado-limpar.sh A|B" ;; esac
-v="$(echo "$V" | tr 'A-Z' 'a-z')"; P="ex288-v3-s${v}-t"
 require_login
 delete_projects "$(sim_ns "$V" "1")" "$(sim_ns "$V" "2")" "$(sim_ns "$V" "3")" "$(sim_ns "$V" "4")" "$(sim_ns "$V" "5")" "$(sim_ns "$V" "6")" "$(sim_ns "$V" "7")" "$(sim_ns "$V" "8")"
 if [ "$V" = B ]; then delete_projects "$(sim_ns "$V" "4-shared")"; fi

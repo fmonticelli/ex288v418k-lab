@@ -6,18 +6,18 @@
 | ---------------------- | -------------------------------------------------------------------------------------------------------- |
 | **Objetivo do laboratório**      | "Deploy de aplicação com Helm" `[RELATO PESSOAL]` (o repositório de charts pode ser o Nexus: `HIPÓTESE`) |
 | **Objetivos oficiais** | "Create and use Helm charts" `[OFICIAL]`                                                                 |
-| **Projeto**            | `ex288-v3-t7` · `bash scripts/preparar-07.sh` · `validar-07.sh` · `limpar-07.sh`                         |
+| **Projeto**            | `heather` · `bash scripts/preparar-07.sh` · `validar-07.sh` · `limpar-07.sh`                         |
 | **Pré-requisito**      | `helm` no WSL; Nexus (E4) com o chart `ex288-hello` 0.1.0 e 0.2.0 (carregados por `infra-up.sh`)         |
 
 ## Caminho mais rápido na prova
 
 ```bash
-oc project ex288-v3-t7
+oc project heather
 helm repo add meu-repo URL --username USUARIO --password SENHA     # se houver repositório
 helm repo update && helm search repo ex288-hello --versions
 helm show values meu-repo/ex288-hello --version 0.2.0 | head -30  # veja o que dá para sobrescrever
-helm install rel3 meu-repo/ex288-hello --version 0.2.0 -n ex288-v3-t7 --set replicaCount=2
-helm list -n ex288-v3-t7 ; oc get all -n ex288-v3-t7 -l app=rel3-hello
+helm install rel3 meu-repo/ex288-hello --version 0.2.0 -n heather --set replicaCount=2
+helm list -n heather ; oc get all -n heather -l app=rel3-hello
 ```
 
 ## Variações prováveis

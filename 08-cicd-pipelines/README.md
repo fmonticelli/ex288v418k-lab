@@ -6,7 +6,7 @@
 | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Objetivo do laboratório**      | "Deploy de aplicação usando CI/CD" `[RELATO PESSOAL]` — a task não diz se é Tekton ou gatilhos de build nativos; o v3 cobre os dois (os gatilhos nativos são `HIPÓTESE`)                                                                                      |
 | **Objetivos oficiais** | "Understand and work with standard Tekton CRDs for defining CI/CD pipelines" · "Design and define, and troubleshoot CI/CD workflows" · "Configure and trigger Pipeline workflows" · "Create a build hook / manage and trigger application builds" `[OFICIAL]` |
-| **Projeto**            | `ex288-v3-t8` · `bash scripts/preparar-08.sh` · `validar-08.sh` · `limpar-08.sh`                                                                                                                                                                              |
+| **Projeto**            | `indigo` · `bash scripts/preparar-08.sh` · `validar-08.sh` · `limpar-08.sh`                                                                                                                                                                              |
 | **Pré-requisito**      | **Pipelines Operator instalado** ([passo 12](../00-guia/preparar-wsl-rhel.md#12-pipelines-operator-no-crc-t8--você-executa-como-kubeadmin)); Git interno para o E2                                                                                            |
 
 > [!IMPORTANT]
@@ -15,7 +15,7 @@
 ## Caminho mais rápido na prova
 
 ```bash
-oc project ex288-v3-t8
+oc project indigo
 oc get task -n openshift-pipelines                                  # o que o Operator oferece
 oc get task git-clone -n openshift-pipelines -o jsonpath='{.spec.params[*].name}{"\n"}{.spec.workspaces[*].name}{"\n"}'
 oc apply -f pipeline.yaml

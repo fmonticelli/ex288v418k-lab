@@ -2,7 +2,7 @@
 
 # T3 — Exercícios
 
-Preparação: `bash scripts/preparar-03.sh` (cria `ex288-v3-t3`, o Secret `git-creds` e a aplicação defeituosa `s2i-broken`) · Validar: `bash scripts/validar-03.sh`.
+Preparação: `bash scripts/preparar-03.sh` (cria `dune`, o Secret `git-creds` e a aplicação defeituosa `s2i-broken`) · Validar: `bash scripts/validar-03.sh`.
 Repositório: `webapp-s2i` (tem `.s2i/environment` e um `.s2i/bin/assemble` customizado).
 
 **E1 — S2I a partir do Git interno.**
@@ -10,7 +10,7 @@ Faça o deploy de `webapp-s2i` como **`s2i1`** com o builder Node.js 20 (UBI 9) 
 
 **Teste com curl (E1):**
 ```bash
-HOST=$(oc get route s2i1 -n ex288-v3-t3 -o jsonpath='{.spec.host}')
+HOST=$(oc get route s2i1 -n dune -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"message":"from-s2i-environment"`.
@@ -20,7 +20,7 @@ Crie **`s2i-nexus`** da mesma forma, mas faça o `npm install` do build usar o r
 
 **Teste com curl (E2):**
 ```bash
-HOST=$(oc get route s2i-nexus -n ex288-v3-t3 -o jsonpath='{.spec.host}')
+HOST=$(oc get route s2i-nexus -n dune -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/build-info"
 ```
 **Retorno esperado:** `registry=` com a URL do Nexus.
@@ -30,7 +30,7 @@ A aplicação **`s2i-broken`** foi criada pelo script de preparação e o build 
 
 **Teste com curl (E3):**
 ```bash
-HOST=$(oc get route s2i-broken -n ex288-v3-t3 -o jsonpath='{.spec.host}')
+HOST=$(oc get route s2i-broken -n dune -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** HTTP 200.
@@ -40,7 +40,7 @@ No repositório `webapp-s2i`, altere `.s2i/bin/assemble` para que, após o `asse
 
 **Teste com curl (E4):**
 ```bash
-HOST=$(oc get route s2i1 -n ex288-v3-t3 -o jsonpath='{.spec.host}')
+HOST=$(oc get route s2i1 -n dune -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/build-info"
 ```
 **Retorno esperado:** `custom=yes` em `/build-info`.

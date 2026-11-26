@@ -14,16 +14,11 @@ esac
 
 # Nomes EXATOS. Nao descobre namespaces por label nem por prefixo.
 KNOWN=(
-  ex288-v3-t0 ex288-v3-t1 ex288-v3-t2 ex288-v3-t3
-  ex288-v3-t4 ex288-v3-t4-shared ex288-v3-t5 ex288-v3-t6 ex288-v3-t7 ex288-v3-t8
+  agate birch coral dune
+  elm elm-shared frost granite heather indigo
   crimson quartz ember harbor cobalt willow falcon tundra
   onyx cedar glacier copper copper-shared violet lantern summit orchard
-  # Nomes historicos dos simulados anteriores:
-  ex288-v3-sa-t1 ex288-v3-sa-t2 ex288-v3-sa-t3 ex288-v3-sa-t4
-  ex288-v3-sa-t5 ex288-v3-sa-t6 ex288-v3-sa-t7 ex288-v3-sa-t8
-  ex288-v3-sb-t1 ex288-v3-sb-t2 ex288-v3-sb-t3 ex288-v3-sb-t4
-  ex288-v3-sb-t4-shared ex288-v3-sb-t5 ex288-v3-sb-t6
-  ex288-v3-sb-t7 ex288-v3-sb-t8
+  jasper maple obsidian saffron raven
 )
 if (( WITH_INFRA )); then KNOWN+=("$INFRA_NS"); fi
 

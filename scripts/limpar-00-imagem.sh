@@ -3,4 +3,4 @@
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 require_login
-delete_projects ex288-v3-t0
+delete_projects agate

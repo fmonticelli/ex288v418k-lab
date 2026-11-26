@@ -3,7 +3,7 @@
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 require_login
-NS=ex288-v3-t5
+NS=frost
 new_project "$NS"
 variant() {  # <nome> <START_DELAY>
   sed -e "s/probeapp/$1/g" -e "s/value: \"25\"/value: \"$2\"/" "$LAB_ROOT/apps/k8s/probeapp.yaml" | oc apply -n "$NS" -f - >/dev/null

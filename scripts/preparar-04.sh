@@ -3,7 +3,7 @@
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 require_login
-NS=ex288-v3-t4; SH=ex288-v3-t4-shared
+NS=elm; SH=elm-shared
 new_project "$NS"; new_project "$SH"
 oc apply -n "$NS" -f "$LAB_ROOT/apps/k8s/cfgapp.yaml" >/dev/null
 # Secret "que ja existe" (a senha e gerada aqui e nunca gravada em arquivo)

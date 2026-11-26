@@ -6,7 +6,7 @@
 |---|---|
 | **Objetivo do laboratório** | "Deploy de aplicação a partir de um Dockerfile" `[RELATO PESSOAL]`; o Nexus apareceu em "algumas tasks" (uso exato: `HIPÓTESE`) |
 | **Objetivos oficiais** | "Understand how to create container images based on pre-built images" · "Understand and work with image builds and image build configurations" · "Publish container images to the OpenShift image registry" `[OFICIAL]` |
-| **Projeto** | `ex288-v3-t2` · `bash scripts/preparar-02.sh` · `validar-02.sh` · `limpar-02.sh` |
+| **Projeto** | `coral` · `bash scripts/preparar-02.sh` · `validar-02.sh` · `limpar-02.sh` |
 | **Pré-requisito** | infra no ar (`scripts/infra-up.sh`); `podman` no WSL para o E5 |
 
 ## Caminho mais rápido na prova

@@ -2,7 +2,7 @@
 # validar-08.sh - valida os exercicios E1-E4 da T8. Uso: bash scripts/validar-08.sh [projeto]
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
-NS="${1:-ex288-v3-t8}"; assert_v3_ns "$NS"; require_login
+NS="${1:-indigo}"; assert_v3_ns "$NS"; require_login
 if ! has_tekton; then
   echo "SKIP  todos: Pipelines Operator nao instalado (API tekton.dev ausente)"; exit 3
 fi

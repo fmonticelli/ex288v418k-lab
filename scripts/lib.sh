@@ -46,13 +46,13 @@ sim_ns() {
   esac
 }
 assert_v3_ns() {
-  case "$1" in "${V3_PREFIX}"*|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared|jasper|maple|obsidian|saffron|raven) ;; *) die "namespace nao autorizado: $1" ;; esac
+  case "$1" in "$INFRA_NS"|agate|birch|coral|dune|elm|frost|granite|heather|indigo|elm-shared|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared|jasper|maple|obsidian|saffron|raven) ;; *) die "namespace nao autorizado: $1" ;; esac
 }
 
 # Exclusao limitada aos nomes exatos das tarefas e simulados; nunca a infra.
 assert_lab_task_ns() {
   case "$1" in
-    ex288-v3-t[0-8]|ex288-v3-t4-shared|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared|jasper|maple|obsidian|saffron|raven) ;;
+    agate|birch|coral|dune|elm|frost|granite|heather|indigo|elm-shared|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared|jasper|maple|obsidian|saffron|raven) ;;
     *) die "projeto fora da lista de tarefas do laboratorio: $1" ;;
   esac
 }
@@ -76,6 +76,7 @@ new_project() {  # <nome completo ex288-v3-*>
   if ! oc get project "$ns" >/dev/null 2>&1; then
     printf 'apiVersion: project.openshift.io/v1\nkind: ProjectRequest\nmetadata:\n  name: %s\ndisplayName: %s\n' "$ns" "$ns" | oc create -f - >/dev/null
   fi
+  oc label namespace "$ns" ex288-lab=v3 --overwrite >/dev/null 2>&1 || true
 }
 
 delete_projects() {  # <ns>... ; so remove ex288-v3-* ; nunca a infra a menos que pedido explicitamente

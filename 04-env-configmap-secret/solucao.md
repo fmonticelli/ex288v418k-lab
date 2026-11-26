@@ -5,7 +5,7 @@
 > **Status:** `VALIDADO NO CLUSTER` — solução executada no CRC 4.22.14 como `developer` (impersonado): antes `1 PASS / 4 FAIL` (só o rollout inicial), depois **`5 PASS / 0 FAIL`**. Confirmado com `oc set env -h`: `--from`, `--prefix`, `--list`, `--resolve`, `--overwrite`; **não** existe `--keys`. Observado: `--prefix=API_` com a chave `token` gera `API_TOKEN` (chave em maiúsculas).
 
 ```bash
-oc project ex288-v3-t4
+oc project elm
 oc get secret                         # db-credentials ja existe
 oc describe secret db-credentials     # username, password
 ```
@@ -66,7 +66,7 @@ Alternativa curta para a senha: `oc set env deployment/cfgapp --from=secret/db-c
 ## E3 — Secret de outro projeto
 
 ```bash
-TOKEN=$(oc get secret shared-api -n ex288-v3-t4-shared -o jsonpath='{.data.token}' | base64 -d)
+TOKEN=$(oc get secret shared-api -n elm-shared -o jsonpath='{.data.token}' | base64 -d)
 oc create secret generic shared-api --from-literal=token="$TOKEN"
 oc set env deployment/cfgapp --from=secret/shared-api --prefix=API_       # cria API_TOKEN
 unset TOKEN

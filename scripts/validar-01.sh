@@ -2,7 +2,7 @@
 # validar-01.sh - valida os exercicios E1-E4 da T1. Uso: bash scripts/validar-01.sh [projeto]
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
-NS="${1:-ex288-v3-t1}"; assert_v3_ns "$NS"; require_login
+NS="${1:-birch}"; assert_v3_ns "$NS"; require_login
 WEBAPP="$(git_url webapp)"
 
 e1() {

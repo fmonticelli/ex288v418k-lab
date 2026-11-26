@@ -21,7 +21,7 @@ Cada pasta tem `README.md` (o que a task pede, caminho mais rápido, variações
 
 ```bash
 bash scripts/infra-up.sh         # uma vez, COMO developer (Git privado + Nexus; aceitar o EULA do Nexus: NEXUS_ACCEPT_EULA=yes, passo 14)
-bash scripts/preparar-04.sh      # cria o(s) projeto(s) ex288-v3-t4*  (T1-T3, T8 exigem a infra)
+bash scripts/preparar-04.sh      # cria o(s) projeto(s) elm*  (T1-T3, T8 exigem a infra)
 # ... resolva os exercicios de 04-env-configmap-secret/exercicios.md ...
 bash scripts/validar-04.sh
 bash scripts/limpar-04.sh

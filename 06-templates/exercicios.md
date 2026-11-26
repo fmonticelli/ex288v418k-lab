@@ -2,24 +2,24 @@
 
 # T6 — Exercícios
 
-Preparação: `bash scripts/preparar-06.sh` (cria `ex288-v3-t6`). O template fornecido é `apps/templates/webapp-template.yaml` (parâmetros `NAME` obrigatório, `MESSAGE`, `REPLICAS`, `APP_TOKEN` gerado). Validar: `bash scripts/validar-06.sh`.
+Preparação: `bash scripts/preparar-06.sh` (cria `granite`). O template fornecido é `apps/templates/webapp-template.yaml` (parâmetros `NAME` obrigatório, `MESSAGE`, `REPLICAS`, `APP_TOKEN` gerado). Validar: `bash scripts/validar-06.sh`.
 
 **E1 — Instanciar um template de arquivo.**
 Instancie o template fornecido com `NAME=tpl1`, `MESSAGE=ola-template` e `REPLICAS=2`. O Deployment `tpl1` deve ter 2 réplicas prontas, o Secret `tpl1-token` deve existir (token de 16 caracteres) e a Route `tpl1` deve responder `ola-template`. Todos os objetos devem ter o rótulo `template=webapp-template`.
 
 **Teste com curl (E1):**
 ```bash
-HOST=$(oc get route tpl1 -n ex288-v3-t6 -o jsonpath='{.spec.host}')
+HOST=$(oc get route tpl1 -n granite -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `ola-template`.
 
 **E2 — Template cadastrado no projeto e arquivo de parâmetros.**
-Cadastre o template no projeto **`ex288-v3-t6`** (objeto `Template` chamado `webapp-template`) e crie, a partir dele, a instância `tpl2` usando um **arquivo de parâmetros** (`NAME=tpl2`, `MESSAGE=param-file`, `REPLICAS=1`). A Route `tpl2` deve responder `param-file`.
+Cadastre o template no projeto **`granite`** (objeto `Template` chamado `webapp-template`) e crie, a partir dele, a instância `tpl2` usando um **arquivo de parâmetros** (`NAME=tpl2`, `MESSAGE=param-file`, `REPLICAS=1`). A Route `tpl2` deve responder `param-file`.
 
 **Teste com curl (E2):**
 ```bash
-HOST=$(oc get route tpl2 -n ex288-v3-t6 -o jsonpath='{.spec.host}')
+HOST=$(oc get route tpl2 -n granite -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `param-file`.
@@ -29,7 +29,7 @@ Crie um template chamado **`mini`** com um Deployment, um Service e uma Route, e
 
 **Teste com curl (E3):**
 ```bash
-HOST=$(oc get route mini-a -n ex288-v3-t6 -o jsonpath='{.spec.host}')
+HOST=$(oc get route mini-a -n granite -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `hi` (padrão); teste também `mini-b`, esperado `bravo`.
@@ -39,7 +39,7 @@ Use o template **`httpd-example`** do namespace `openshift` para criar a aplica�
 
 **Teste com curl (E4):**
 ```bash
-HOST=$(oc get route site-tpl -n ex288-v3-t6 -o jsonpath='{.spec.host}')
+HOST=$(oc get route site-tpl -n granite -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** página do `httpd-ex`.

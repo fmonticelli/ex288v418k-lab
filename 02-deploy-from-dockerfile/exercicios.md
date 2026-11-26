@@ -2,7 +2,7 @@
 
 # T2 — Exercícios
 
-Preparação: `bash scripts/preparar-02.sh` (cria `ex288-v3-t2` e o Secret `git-creds`) · Validar: `bash scripts/validar-02.sh`.
+Preparação: `bash scripts/preparar-02.sh` (cria `coral` e o Secret `git-creds`) · Validar: `bash scripts/validar-02.sh`.
 Repositório: `webapp-docker` (arquivos `Dockerfile` e `Dockerfile.root`). Nexus: `bash scripts/credenciais.sh --show`.
 
 **E1 — Build Docker detectado automaticamente.**
@@ -10,7 +10,7 @@ Faça o deploy de `webapp-docker` como **`docker1`** com estratégia **Docker**,
 
 **Teste com curl (E1):**
 ```bash
-HOST=$(oc get route docker1 -n ex288-v3-t2 -o jsonpath='{.spec.host}')
+HOST=$(oc get route docker1 -n coral -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"app":"webapp-docker"`.
@@ -20,7 +20,7 @@ Crie o BuildConfig **`docker-nexus`** (saída `docker-nexus:1.0`) a partir do me
 
 **Teste com curl (E2):**
 ```bash
-HOST=$(oc get route docker-nexus -n ex288-v3-t2 -o jsonpath='{.spec.host}')
+HOST=$(oc get route docker-nexus -n coral -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** Build `Complete`; não há Route exigida nesta etapa.
@@ -30,7 +30,7 @@ Faça o deploy de **`root-app`** usando o arquivo **`Dockerfile.root`** do repos
 
 **Teste com curl (E3):**
 ```bash
-HOST=$(oc get route root-app -n ex288-v3-t2 -o jsonpath='{.spec.host}')
+HOST=$(oc get route root-app -n coral -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `"app":"webapp-docker"`.
@@ -40,17 +40,17 @@ Baixe do Nexus (repositório **raw** `raw-hosted`, caminho `ex288/site-1.0.tar.g
 
 **Teste com curl (E4):**
 ```bash
-HOST=$(oc get route site-bin -n ex288-v3-t2 -o jsonpath='{.spec.host}')
+HOST=$(oc get route site-bin -n coral -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `site 1.0`.
 
 **E5 — Imagem construída e publicada com podman (requer `podman`).**
-Construa com `podman` a imagem do `webapp-docker` e publique-a no registry interno como **`pushed:1.0`** no projeto `ex288-v3-t2`. Faça o deploy **`pushed`** a partir dessa ImageStreamTag, com a Route `pushed` respondendo.
+Construa com `podman` a imagem do `webapp-docker` e publique-a no registry interno como **`pushed:1.0`** no projeto `coral`. Faça o deploy **`pushed`** a partir dessa ImageStreamTag, com a Route `pushed` respondendo.
 
 **Teste com curl (E5):**
 ```bash
-HOST=$(oc get route pushed -n ex288-v3-t2 -o jsonpath='{.spec.host}')
+HOST=$(oc get route pushed -n coral -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** resposta HTTP 200 da aplicação.

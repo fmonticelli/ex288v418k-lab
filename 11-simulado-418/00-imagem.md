@@ -4,7 +4,7 @@
 
 **Preparação:** `bash scripts/preparar-00-imagem.sh`
 
-**Projeto:** `ex288-v3-t0`
+**Projeto:** `agate`
 
 ## Enunciado
 
@@ -22,10 +22,10 @@ Sem construir uma imagem nem criar BuildConfig:
 
 **Teste HTTP e retorno esperado:**
 ```bash
-HOST=$(oc get route image-app -n ex288-v3-t0 -o jsonpath='{.spec.host}')
+HOST=$(oc get route image-app -n agate -o jsonpath='{.spec.host}')
 curl -sS -o /dev/null -w '%{http_code}\n' "http://$HOST/"
 # Esperado: 200
-oc get deployment image-app -n ex288-v3-t0 -o jsonpath='{.status.readyReplicas}'; echo
+oc get deployment image-app -n agate -o jsonpath='{.status.readyReplicas}'; echo
 # Esperado: 2
 ```
 

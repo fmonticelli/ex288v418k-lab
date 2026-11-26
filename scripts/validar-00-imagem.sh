@@ -2,7 +2,7 @@
 # Valida deploy direto de imagem, sem build.
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
-NS="${1:-ex288-v3-t0}"
+NS="${1:-agate}"
 assert_v3_ns "$NS"
 require_login
 IMAGE='registry.access.redhat.com/ubi9/httpd-24:latest'

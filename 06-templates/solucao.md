@@ -5,7 +5,7 @@
 > **Status:** E1–E3 `VALIDADO NO CLUSTER` (CRC 4.22.14, como `developer`): antes `0 PASS / 3 FAIL`, depois **`3 PASS / 0 FAIL`** (token de 16 caracteres confirmado). O 1º run do E1 falhou por eu ter rodado `oc process` sem `-n` (usou o projeto `default`: `Forbidden … processedtemplates`) — virou armadilha no README. **E4 `VALIDADO NO CLUSTER`** (Gitea privado + build real, `PASS`): o `httpd-example` criou BuildConfig e Deployment; o 1º build (`site-tpl-1`) **falhou sem credencial** (esperado), depois de `oc set build-secret --source bc/site-tpl git-creds` + `oc start-build` o `site-tpl-2` ficou `Complete` e a rota respondeu a página do `httpd-ex`. Parâmetros do template no 4.22.14: `NAME`, `NAMESPACE`, `SOURCE_REPOSITORY_URL`, `SOURCE_REPOSITORY_REF`, `CONTEXT_DIR` (+ outros).
 
 ```bash
-oc project ex288-v3-t6
+oc project granite
 T=apps/templates/webapp-template.yaml        # caminho do arquivo no material
 ```
 

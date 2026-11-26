@@ -7,7 +7,6 @@
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 V="${1:-}"; case "$V" in A|B) ;; *) die "uso: simulado-preparar.sh A|B" ;; esac
-v="$(echo "$V" | tr 'A-Z' 'a-z')"; P="ex288-v3-s${v}-t"
 ONLY="${SIM_ONLY:-1 2 3 4 5 6 7 8}"
 want() { case " $ONLY " in *" $1 "*) return 0 ;; *) return 1 ;; esac; }   # <n> : a task n entra nesta execucao?
 require_login

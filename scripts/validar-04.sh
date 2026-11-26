@@ -2,7 +2,7 @@
 # validar-04.sh - valida os exercicios E1-E4 da T4. Uso: bash scripts/validar-04.sh [projeto]
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
-NS="${1:-ex288-v3-t4}"; assert_v3_ns "$NS"; require_login
+NS="${1:-elm}"; assert_v3_ns "$NS"; require_login
 SH="${NS}-shared"
 ENVJ() { val "$NS" deployment cfgapp "{.spec.template.spec.containers[0].env[?(@.name==\"$1\")]$2}"; }
 

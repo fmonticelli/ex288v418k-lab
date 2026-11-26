@@ -3,7 +3,7 @@
 # Uso: bash scripts/validar-07.sh [projeto]
 set -euo pipefail
 source "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
-NS="${1:-ex288-v3-t7}"; assert_v3_ns "$NS"; require_login
+NS="${1:-heather}"; assert_v3_ns "$NS"; require_login
 
 revs()   { oc get secret -n "$NS" -l "owner=helm,name=$1" --no-headers 2>/dev/null | wc -l | tr -d ' '; }
 status() { oc get secret -n "$NS" -l "owner=helm,name=$1,status=deployed" --no-headers 2>/dev/null | wc -l | tr -d ' '; }

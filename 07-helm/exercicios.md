@@ -2,14 +2,14 @@
 
 # T7 — Exercícios
 
-Preparação: `bash scripts/preparar-07.sh` (cria `ex288-v3-t7`). Chart local: `apps/helm/ex288-hello` (valores `replicaCount`, `message`, `image.*`, `route.enabled`; recursos chamados `<release>-hello`). Validar: `bash scripts/validar-07.sh`. O `helm` precisa estar no PATH.
+Preparação: `bash scripts/preparar-07.sh` (cria `heather`). Chart local: `apps/helm/ex288-hello` (valores `replicaCount`, `message`, `image.*`, `route.enabled`; recursos chamados `<release>-hello`). Validar: `bash scripts/validar-07.sh`. O `helm` precisa estar no PATH.
 
 **E1 — Instalar um chart local.**
-Instale o chart como release **`rel1`** no projeto `ex288-v3-t7` com **2 réplicas** e a mensagem `ola helm`. O Deployment `rel1-hello` deve ter 2 réplicas prontas e a Route `rel1-hello` deve responder `ola helm`.
+Instale o chart como release **`rel1`** no projeto `heather` com **2 réplicas** e a mensagem `ola helm`. O Deployment `rel1-hello` deve ter 2 réplicas prontas e a Route `rel1-hello` deve responder `ola helm`.
 
 **Teste com curl (E1):**
 ```bash
-HOST=$(oc get route rel1-hello -n ex288-v3-t7 -o jsonpath='{.spec.host}')
+HOST=$(oc get route rel1-hello -n heather -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `ola helm`.
@@ -19,7 +19,7 @@ Instale o chart como **`rel2`** usando um **arquivo de valores** seu (`replicaCo
 
 **Teste com curl (E2):**
 ```bash
-HOST=$(oc get route rel2-hello -n ex288-v3-t7 -o jsonpath='{.spec.host}')
+HOST=$(oc get route rel2-hello -n heather -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `first` após rollback.
@@ -29,7 +29,7 @@ Gere o pacote do chart (`helm package`) e instale-o a partir do arquivo `.tgz` c
 
 **Teste com curl (E3):**
 ```bash
-HOST=$(oc get route rel3-hello -n ex288-v3-t7 -o jsonpath='{.spec.host}')
+HOST=$(oc get route rel3-hello -n heather -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `from-tgz`.
@@ -39,7 +39,7 @@ O Nexus tem um repositório Helm hospedado (`helm-hosted`, exige usuário e senh
 
 **Teste com curl (E4):**
 ```bash
-HOST=$(oc get route rel4-hello -n ex288-v3-t7 -o jsonpath='{.spec.host}')
+HOST=$(oc get route rel4-hello -n heather -o jsonpath='{.spec.host}')
 curl -fsS "http://$HOST/"
 ```
 **Retorno esperado:** `hello from helm v2`.
