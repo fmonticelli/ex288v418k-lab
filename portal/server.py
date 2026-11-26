@@ -88,7 +88,11 @@ def await_cleanup(names, timeout=120):
     return False, namespace_status(names)
 
 def read(path):
-    return (ROOT / path).read_text(encoding="utf-8")
+    md = (ROOT / path).read_text(encoding="utf-8")
+    # Breadcrumbs do GitHub nao pertencem ao enunciado do portal.
+    # Remove apenas linhas compostas inteiramente por links Markdown relativos.
+    nav = re.compile(r"^\s*\[[^\]\n]+\]\((?:\.{1,2}/)?[^)\s:]+\.md(?:#[^)]*)?\)(?:\s*\|\s*\[[^\]\n]+\]\((?:\.{1,2}/)?[^)\s:]+\.md(?:#[^)]*)?\))*\s*$")
+    return "\n".join(line for line in md.splitlines() if not nav.fullmatch(line))
 def sections(md):
     # Somente enunciados; nao envia solucao.md para o navegador.
     chunks = re.split(r"(?=^\*\*E\d+\s*[—-])", md, flags=re.M)
