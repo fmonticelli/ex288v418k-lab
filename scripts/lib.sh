@@ -46,13 +46,13 @@ sim_ns() {
   esac
 }
 assert_v3_ns() {
-  case "$1" in "${V3_PREFIX}"*|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared) ;; *) die "namespace nao autorizado: $1" ;; esac
+  case "$1" in "${V3_PREFIX}"*|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared|jasper|maple|obsidian|saffron|raven) ;; *) die "namespace nao autorizado: $1" ;; esac
 }
 
 # Exclusao limitada aos nomes exatos das tarefas e simulados; nunca a infra.
 assert_lab_task_ns() {
   case "$1" in
-    ex288-v3-t[0-8]|ex288-v3-t4-shared|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared) ;;
+    ex288-v3-t[0-8]|ex288-v3-t4-shared|crimson|quartz|ember|harbor|cobalt|willow|falcon|tundra|onyx|cedar|glacier|copper|violet|lantern|summit|orchard|copper-shared|jasper|maple|obsidian|saffron|raven) ;;
     *) die "projeto fora da lista de tarefas do laboratorio: $1" ;;
   esac
 }

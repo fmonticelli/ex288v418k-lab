@@ -41,4 +41,4 @@ Se a correção falhar, execute o mesmo script diretamente no terminal. Para HTT
 
 ## Reforço final
 
-Em Simulado, selecione **Reforço final**. O portal apresenta R1–R5, prepara os cinco namespaces, inicia o cronômetro de 1h55 e valida o conjunto. O resultado é a contagem de itens PASS/FAIL, não uma nota oficial. Confira os arquivos values e os logs Tekton manualmente. A limpeza remove somente ex288-v3-r1 a r5.
+Em Simulado, selecione **Reforço final**. O portal apresenta R1–R5, prepara os cinco namespaces, inicia o cronômetro de 1h55 e valida o conjunto. O resultado é a contagem de itens PASS/FAIL, não uma nota oficial. Confira os arquivos values e os logs Tekton manualmente. A limpeza remove somente jasper, maple, obsidian, saffron, raven.

@@ -50,7 +50,7 @@ TASKS = {
     "8": ("CI/CD", "08-cicd-pipelines/exercicios.md", "08"),
 }
 SIM_NS = {
-    "R": tuple(f"ex288-v3-r{i}" for i in range(1, 6)),
+    "R": ("jasper", "maple", "obsidian", "saffron", "raven"),
     "A": ("crimson", "quartz", "ember", "harbor", "cobalt", "willow", "falcon", "tundra"),
     "B": ("onyx", "cedar", "glacier", "copper", "violet", "lantern", "summit", "orchard", "copper-shared"),
 }
